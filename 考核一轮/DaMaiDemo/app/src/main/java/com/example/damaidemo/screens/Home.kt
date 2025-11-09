@@ -44,7 +44,9 @@ import com.example.damaidemo.R
 import com.example.damaidemo.TypesOnMainScreenOnTopHeight
 
 
+
 @Composable
+
 fun Home(navController: NavController){
     val searchQuery = remember { mutableStateOf("") }
     val onSearchQueryChange: (String) -> Unit = { newQuery ->

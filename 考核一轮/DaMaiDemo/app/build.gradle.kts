@@ -50,11 +50,13 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
 
+
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)//跳转技术
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -65,3 +67,4 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
 }
+

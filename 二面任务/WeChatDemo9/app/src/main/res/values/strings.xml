@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">SOSD YES</string>
-    <string name="title_activity_pad_and_service">Pad_And_Service</string>
-    <string name="title_activity_next">Next</string>
-    <string name="home" />
-    <string name="pay_and_service" />
-</resources>
