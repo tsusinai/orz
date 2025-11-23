@@ -5,12 +5,19 @@ package com.example.wechatdemo4.navigation
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,6 +43,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.damaidemo.R
 import com.example.damaidemo.screens.Home
+import com.example.damaidemo.screens.Live
+import com.example.damaidemo.screens.PersonHome
+import com.example.damaidemo.screens.Ticket
+import com.example.damaidemo.screens.VIP
 
 
 //导航信息管理
@@ -42,21 +54,46 @@ object NavRoutes {   //导航常数
 
     const val HOME = "home"
 
+    const val LIVE = "live"
 
+    const val VIP = "vip"
+
+    const val TICKET = "ticket"
+    const val PERSON_HOME = "personHome"
 }
 
 //// 2. 导航项数据模型（每个底部按钮的配置）
 data class NavItem(
     val route: String, // 对应哪个路由
-    val label: Int, // 文字标签（资源ID）
+    val label: String, // 文字标签（资源ID）
     val icon : Int // 图标资源
 )
 
 val navItems = listOf(
     NavItem(
         route = NavRoutes.HOME,
-        label = R.string.home, // 需要在strings.xml中定义
-        icon = R.drawable.ic_launcher_background// 或使用Icons.Default.$#%@
+        label = "精选",
+        icon = R.drawable.jing_xan// 或使用Icons.Default.$#%@
+    ),
+    NavItem(
+        route = NavRoutes.LIVE,
+        label = "现场",
+        icon = R.drawable.xian_chang// 或使用Icons.Default.$#%@
+    ),
+    NavItem(
+        route = NavRoutes.VIP,
+        label = "大麦 VIP",
+        icon = R.drawable.vip// 或使用Icons.Default.$#%@
+    ),
+    NavItem(
+        route = NavRoutes.TICKET,
+        label = "票夹",
+        icon = R.drawable.piao_jia// 或使用Icons.Default.$#%@
+    ),
+    NavItem(
+        route = NavRoutes.PERSON_HOME,
+        label = "我的",
+        icon = R.drawable.wo_de// 或使用Icons.Default.$#%@
     ),
 )
 
@@ -79,6 +116,18 @@ fun MyNavHost(navController: NavHostController,modifier: Modifier){ Scaffold(
             composable(NavRoutes.HOME) {
                 Home(navController)  //目标地址：主界面
             }
+            composable(NavRoutes.LIVE) {
+                Live(navController)  //目标地址：主界面
+            }
+            composable(NavRoutes.VIP) {
+                VIP(navController)  //目标地址：主界面
+            }
+            composable(NavRoutes.TICKET) {
+                Ticket(navController)  //目标地址：主界面
+            }
+            composable(NavRoutes.PERSON_HOME) {
+                PersonHome(navController)  //目标地址：主界面
+            }
         }
     }
 }
@@ -96,7 +145,7 @@ fun CustomBottomNavigation(
     val currentRoute = navBackStackEntry?.destination?.route //获取当前页面的路由（如 "home" 或 "pas"），用于判断哪个导航项应该被选中
 
     NavigationBar(
-        modifier = Modifier.height(60.dp),
+        modifier = Modifier.height(80.dp),
         containerColor = Color.White.copy(alpha = 0.2f),  //NavigationBar：Material3 提供的底部导航容器组件
 
         //containerColor：设置导航栏的背景色，这里使用白色 推荐用符合 Material 设计规范 MaterialTheme.colorScheme.surface,
@@ -126,53 +175,28 @@ fun CustomBottomNavigation(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     // 关键：给图标套 BadgedBox，添加徽章
-                    BadgedBox(
-                        // 徽章内容：默认红点（无数字）
-                        badge = {
-                            Box(
-                                modifier = Modifier
-                                    .size(14.dp)
-                                    .background(color = Color.Red, shape = CircleShape) ,// 自定义形状和颜色
-                                contentAlignment = Alignment.Center//居中对齐
-
-                            )
-                            {
-                                Text(text = "99",
-                                    fontSize = 8.sp,
-                                    color = Color.White,
-                                    modifier = Modifier.offset(x = 0.dp, y = (-5).dp)
-                                    // modifier = Modifier.padding(vertical = 1.dp)
-                                )
-
-                            }
-                        },
-                    ) {
-                        Box(// 徽章位置：默认右上角，可微调偏移避免遮
-                            modifier = Modifier.offset(x = 2.dp, y = (-11).dp) // 手动设置偏移
-                        ) {
-                            Icon(
-                                painter = painterResource(id = item.icon),
-                                contentDescription = stringResource(id = item.label),
-                                tint = if (isSelected) Color.Blue else Color.Gray,
-                                modifier = Modifier.size(48.dp) // 固定图标大小，不弹跳
-                                    .offset(x = 0.dp, y = (12).dp)
-                            )
-                        }
-
-                        // 原有文字（选中时显示，未选中隐藏）
-                        if (isSelected) {
-                            Text(
-                                stringResource(id = item.label),
-                                color = Color.Blue,
-                                fontSize = 12.sp
-                            )
-                        }
-                    }
+                    Icon(
+                        painter = painterResource(id = item.icon),
+                        null,
+                        tint = if (isSelected) Color(0xFFFA677D) else Color.Gray,
+                        modifier = Modifier.size(36.dp) // 固定图标大小，不弹跳
+                            .offset(x = 0.dp, y = (-2).dp)
+                    )
+                    Text(
+                        text = item.label,
+                        color = if (isSelected) Color(0xFFFA677D) else Color.Gray,
+                        fontSize = 12.sp,
+                        modifier=Modifier
+                        .offset(x = 0.dp, y = (-2).dp)
+                    )
+                }
                 }
             }
         }
     }
-}
+
+
+
 
 
 

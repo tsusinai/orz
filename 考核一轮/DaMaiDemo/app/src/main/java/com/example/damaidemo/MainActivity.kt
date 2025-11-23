@@ -2,18 +2,16 @@ package com.example.damaidemo
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.service.autofill.OnClickAction
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +21,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -41,7 +40,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -55,390 +53,199 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
-
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.util.packInts
+import androidx.compose.ui.zIndex
+import androidx.core.view.WindowCompat
+import androidx.navigation.compose.rememberNavController
+import com.example.damaidemo.data.data_source.BottomShowsL
+import com.example.damaidemo.data.data_source.BottomShowsR
+import com.example.damaidemo.data.data_source.MiddleGroups
+import com.example.damaidemo.data.data_source.TopCardsLine1
+import com.example.damaidemo.data.data_source.TopCardsLine2
+import com.example.damaidemo.data.data_source.bannerList
+import com.example.damaidemo.data.model.BottomShow
+import com.example.damaidemo.data.model.MiddleGroup
+import com.example.damaidemo.data.model.TopCards
+import com.example.damaidemo.ui.components.Pictures
+import com.example.damaidemo.ui.components.TopCard
+import com.example.damaidemo.ui.components.cardLR1_MainGroupsOnMainScreen
+import com.example.damaidemo.ui.components.middleLazyRow
+import com.example.damaidemo.ui.components.middleLazyRow1
+import com.example.damaidemo.ui.components.typesOnMainScreenOnTop
+import com.example.wechatdemo4.navigation.MyNavHost
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
 //                val navController = rememberNavController()
-//                MyNavHost(navController = navController,modifier= Modifier)
+//                MyNavHost(navController = navController, modifier = Modifier)
                 Home()
                 }
             }
         }
-
-
-var Padding =3
-var TypesOnMainScreenOnTopHeight=160 //顶部集群高度
+var allHorizonPadding =8.dp
 var ClipSize = 10 //卡片切割角
 
 var CardLR1Weight = 190
 var CardLR1Height = 100
-////第一行卡片规格
-//data class CardLR1(
-//    val weight:Int = 60,
-//    val height:Int = 70,
-//)
-
-var CardMWeight = 125
-var CardMHeight = 70
-//data class CardLR2(
-//    val weight:Int
-//)
-
-
-@Composable
-@Preview
-fun Home(){
-
-    val textFieldState = rememberTextFieldState()
-
-    // 2. 管理搜索结果（可通过状态变量动态更新）
-    var results by remember { mutableStateOf(emptyList<String>()) }
-
-    // 3. 搜索逻辑（例如过滤本地数据或请求网络）
-    val onSearch: (String) -> Unit = { query ->
-        // 模拟搜索逻辑
-        results = listOf("结果1：$query", "结果2：$query")
-    }
-
-    Box(
-        modifier = Modifier.fillMaxSize().
-        background(color = Color(242,242,242))
-        ,){
- LazyColumn(
-     modifier = Modifier.
-     fillMaxSize()
- )
- {
-     //LazyColumn需要在items的作用域中❗
-//     item {
-//         simpleSearchBar(textFieldState, onSearch, results)
-//         //测试区
-//         typesOnMainScreenOnTop()
-//         CardLR1_MainGroupsOnMainScreen()
-//         MiddleGroups(MiddleGroups)
-//         CarouselBanner()
-//         MiddleLazyRow()
-//         MiddleLazyRow1()
-//         BottomColumn()
-//     }
-        item{   simpleSearchBar(textFieldState, onSearch, results)}
-        item{typesOnMainScreenOnTop(modifier = Modifier)}
-        item{MiddleGroups(MiddleGroups)}
-        item{CardLR1_MainGroupsOnMainScreen(modifier = Modifier)}
-        item{CarouselBanner(modifier = Modifier) }
-        item{MiddleLazyRow(modifier = Modifier)}
-        item{MiddleLazyRow1(modifier = Modifier)}
-        item{BottomColumn(modifier = Modifier)}
-        }
-    }
-
-}
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun simpleSearchBar(
-    textFieldState: TextFieldState,
-    onSearch: (String) -> Unit,
-    searchResults: List<String>,
-    modifier: Modifier = Modifier
-) {
-    // Controls expansion state of the search bar
-    var expanded by rememberSaveable { mutableStateOf(false) }
+@Preview
+fun Home(
 
-    Box(
-        modifier
-            .fillMaxWidth()
-            .semantics { isTraversalGroup = true }
-    ) {
-        SearchBar(
-            modifier = Modifier
-                .align(Alignment.TopCenter),
-//                .background(
-//                    color = Color(255,255,255), // 使用主题颜色，而不是硬编码
-//                    shape = RectangleShape
-//                ),
+    ){
+    val linearGradient = Brush.linearGradient(
+        colors = listOf(Color(0xFFFDDAE5),Color(0xFFFFFFFF)),
+        start = Offset(Float.POSITIVE_INFINITY,0f),
+        end = Offset(0f,Float.POSITIVE_INFINITY)
+    )
 
-            //笔记attention❗
-            colors = SearchBarDefaults.colors(
-                containerColor = Color(255,255,255),
-                dividerColor = MaterialTheme.colorScheme.outline,
-            ),
+    Scaffold(
+        topBar = {
 
-            inputField = {
-                SearchBarDefaults.InputField(
+            TopAppBar(
+                modifier = Modifier
+                    .background(brush = linearGradient)
+                    .height(56.dp),
 
-                    query = textFieldState.text.toString(), // 当前输入的文本
-                    onQueryChange = { textFieldState.edit { replace(0, length, it) } },//文本变化时更新状态
-                    onSearch = { // 触发搜索（如点击搜索按钮、按回车）
-                        onSearch(textFieldState.text.toString())
-                        expanded = false // 搜索后折叠搜索栏
-                    },
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it },
-                    placeholder = { Text("Search") } // 占位提示文本
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                ),
+
+                navigationIcon = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    ) {
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .offset((-4).dp, 0.dp)
+                                .border(width = 1.dp, color = Color.Gray, shape = RectangleShape)
+
+
+                        ) {
+                            Text(
+                                text = "证照\n信息",
+                                style = TextStyle(
+                                    fontSize = 10.sp,
+                                    color = Color.Gray
+                                )
+                            )
+                        }
+
+                        Text(
+                            "福州",
+                            style = TextStyle(
+                                fontSize = 20.sp,
+                                color = Color.Black
+                            )
+                        )
+
+                    }
+                },//左侧导航栏区域
+                title = {
+
+
+                },//顶部标题区域
+                actions = {
+                    BadgedBox(
+                        // 核心：徽章内容（纯红点）
+                        badge = {
+                            Box(
+                                modifier = Modifier
+                                    .offset(2.dp, (-9).dp)
+                                    .size(10.dp) // 红点大小
+                                    .background(
+                                        color = Color(0xFFF44336), // 红色
+                                        shape = RoundedCornerShape(50) // 圆形
+                                    )
+                            )
+                        }
+                    ) {
+                        Box() {
+                            Image(
+                                painter = painterResource(R.drawable.chat), null,
+                                modifier = Modifier.size(25.dp)
+                            )
+
+
+                        }
+                    }
+                },//右侧按钮操作区域
+
                 )
-            },
-            expanded = expanded,
-            onExpandedChange = { expanded = it },
-        ) {
-            // Display search results in a scrollable column
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                searchResults.forEach { result ->
-                    ListItem(
-                        headlineContent = { Text(result) },
-                        modifier = Modifier
-                            .clickable {
-                                textFieldState.edit { replace(0, length, result) }
-                                expanded = false
-                            }
-                            .fillMaxWidth()
-                    )
+
+        },
+        content = { innerPadding ->
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color(242, 242, 242)),
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                        .padding(innerPadding),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                )
+                {
+                    item { typesOnMainScreenOnTop(modifier = Modifier) }
+                    item { cardLR1_MainGroupsOnMainScreen(modifier = Modifier) }
+                    item { middleGroups(MiddleGroups) }
+                    item { carouselBanner(modifier = Modifier) }
+                    item { middleLazyRow(modifier = Modifier) }
+                    item { middleLazyRow1(modifier = Modifier) }
+                    item { bottomColumn(modifier = Modifier) }
                 }
             }
         }
-    }
-}
 
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopBar(
-    Search: String,
-    onSearchQueryChange: (String) -> Unit,
-
-    ){
-    TopAppBar(
-        navigationIcon ={},//左侧导航栏区域
-        title = {
-            TextField(
-                value=Search,//绑定文本内容
-                onValueChange = onSearchQueryChange,
-                singleLine = true,//单行搜索
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-        },//顶部标题区域
-        actions={},//右侧按钮操作区域
     )
 }
 
-@Preview
-@Composable
-fun typesOnMainScreenOnTop(modifier: Modifier = Modifier){
-    Box(
-        modifier = Modifier.
-        padding(5.dp).
-        fillMaxWidth().
-        clip(RoundedCornerShape(size = ClipSize.dp)).
-        background(Color(255,255,255))
-        ,
-    )
-    {
-        Column {
-            TopCardLine(TopCardsL1)
-            TopCardLine(TopCardsL1)
-        }
-    }
-
-}
-
-data class TopCards(
-    val image: Int,
-    val text: String,
-    val isClick : OnClickAction?= null
-)
-
-val TopCardsL1=listOf<TopCards>(
-    TopCards(
-        image = R.drawable.ic_launcher_background,
-        text = "演唱会"
-    ),
-    TopCards(
-        image = R.drawable.ic_launcher_background,
-        text = "音乐节"
-    ),
-    TopCards(
-        image = R.drawable.ic_launcher_background,
-        text = "Livehouse"
-    ),
-    TopCards(
-        image = R.drawable.ic_launcher_background,
-        text = "话剧音乐剧"
-    ),
-    TopCards(
-        image = R.drawable.ic_launcher_background,
-        text = "脱口秀"
-    ),
-
-
-
-)
-
-@Composable
-fun TopCardLine(
-    items:List<TopCards>
-){
-    Row(modifier = Modifier
-        .padding(horizontal = 8.dp)
-        .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-
-
-    ) {
-        items.forEach { items ->
-            Column(
-                modifier = Modifier
-                    .padding(10.dp)
-            )
-            {
-                Image(
-                    modifier = Modifier
-                        .size(34.dp),
-                    painter = painterResource(id = items.image),
-                    contentDescription = null
-                )
-
-                Text(items.text)
-            }
-        }
-    }
-}
-
-
-@Preview
-@Composable
-fun CardLR1_MainGroupsOnMainScreen( modifier: Modifier = Modifier){
-    Row(
-        modifier = Modifier.
-        fillMaxWidth().
-        padding(8.dp)
-        ,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    )
-    {
-        Card(
-            modifier = Modifier.
-            height(CardLR1Height.dp).
-            width(CardLR1Weight.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White, // 默认背景色（容器色）
-            )
-        )
-        {
-            Image(painter= painterResource(id = R.drawable.ic_launcher_background),
-                null,
-                modifier=Modifier.offset(20.dp,10.dp).
-                clip(RoundedCornerShape(ClipSize.dp))
-                    .size(50.dp)
-                )
-            Text(text = "我喜欢廖伦哲",
-                fontWeight = FontWeight(400),
-                modifier = Modifier.offset(100.dp,-5.dp)
-                )
-
-        }
-
-        Spacer(modifier = Modifier.size(9.dp))
-
-        Card(
-            modifier = Modifier.
-            height(CardLR1Height.dp).
-            width(CardLR1Weight.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White, // 默认背景色（容器色）
-            )
-        )
-        {
-            Image(painter= painterResource(id = R.drawable.ic_launcher_background),
-                null,
-                modifier=Modifier.offset(20.dp,10.dp).
-                clip(RoundedCornerShape(ClipSize.dp))
-                    .size(50.dp)
-            )
-
-        }
-    }
-}
-
-
-
-
-data class MiddleGroup(
-    val text1: String,
-    val text2: String,
-    val icon : Int // 图标资源
-)
-
-
-val MiddleGroups = listOf(
-    MiddleGroup(
-        text1 = "演出日历",
-        text2 = "按时间选演出",
-        icon = R.drawable.ic_launcher_background
-    ),
-    MiddleGroup(
-        text1 = "大麦演出榜",
-        text2 = "你的观影指南",
-        icon = R.drawable.ic_launcher_background
-    ),
-    MiddleGroup(
-        text1 = "大麦团购",
-        text2 = "超低价随时退",
-        icon = R.drawable.ic_launcher_background
-    ),
-)
-
-
-fun MiddleGroupsTest(): List<MiddleGroup> {
-    return listOf<MiddleGroup>(
-        MiddleGroup(
-            text1 = "演出日历",
-            text2 = "按时间选演出",
-            icon = R.drawable.ic_launcher_background
-        ),
-        MiddleGroup(
-            text1 = "大麦演出榜",
-            text2 = "你的观影指南",
-            icon = R.drawable.ic_launcher_background
-        ),
-        MiddleGroup(
-            text1 = "大麦团购",
-            text2 = "超低价随时退",
-            icon = R.drawable.ic_launcher_background
-        ),
-    )
-}
 
 @Composable
 //@Preview
-fun MiddleGroups(
+fun middleGroups(
     items: List<MiddleGroup>,
 ){
+    var CardMWeight = 125
+    var CardMHeight = 60
 
         Row(
-            modifier = Modifier.
-            fillMaxWidth().
-            padding(horizontal = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = allHorizonPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
 
@@ -446,104 +253,59 @@ fun MiddleGroups(
         {
             items.forEach { item ->
             Card(
-                modifier = Modifier.
-                height(CardMHeight.dp).
-                width(CardMWeight.dp),
+                modifier = Modifier
+                    .height(CardMHeight.dp)
+                    .width(CardMWeight.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White, // 默认背景色（容器色）
                 )
             )
-            {
-                Text(
-                    text = item.text1,
-                    fontWeight = FontWeight(400),
-                    modifier = Modifier.offset(8.dp, 0.dp)
-                )
-                Text(
-                    text = item.text2,
-                    fontWeight = FontWeight(400),
-                    color = Color(214,214,214),
-                    modifier = Modifier.offset(8.dp, 10.dp)
-                )
-                Image(
-                    painter = painterResource(id = item.icon),
-                    null,
-                    modifier = Modifier.offset(90.dp, -4.dp).clip(RoundedCornerShape(ClipSize.dp))
-                        .size(30.dp)
-                )
+            {   Row(
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Column(
+                    modifier = Modifier
+                        .padding(start = 7.dp,top = 9.dp, end = 13.dp),//这个来控制image？
+                        verticalArrangement= Arrangement.spacedBy(6.dp)
 
+                ) {
+                    Text(
+                        text = item.text1,
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.SansSerif,
+                        )
+                    )
+                        Text(
+                            text = item.text2,
+                            color = Color(214, 214, 214),
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily.SansSerif,
+                            )
+                        )
+
+                    }
+                Image(
+                    painter = painterResource(id = item.imageId),
+                    null,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(ClipSize.dp))
+                        .size(25.dp)
+                        .align(Alignment.Bottom)
+                )
+                }
             }
+                Spacer(modifier = Modifier.size(6.dp))
         }
     }
 }
-
-
-//Lazy型可用函数返回items方法
-@Composable
-//@Preview
-fun MiddleGroups2(
-    MiddleGroupsTest:List<MiddleGroup>,
-    modifier: Modifier = Modifier
-){
-
-    LazyRow(
-        modifier = Modifier.
-        fillMaxWidth().
-        padding(3.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
-    )
-    {
-        items(MiddleGroupsTest) { MiddleGroups ->
-            Card(
-                modifier = Modifier.
-                height(CardMHeight.dp).
-                width(CardMWeight.dp).
-                background(Color(255,255,255)),
-            )
-            {
-                Text(
-                    text = MiddleGroups.text1,
-                    fontWeight = FontWeight(400),
-                    modifier = Modifier.offset(8.dp, 0.dp)
-                )
-                Text(
-                    text = MiddleGroups.text2,
-                    fontWeight = FontWeight(400),
-                    color = Color(214,214,214),
-                    modifier = Modifier.offset(8.dp, 10.dp)
-                )
-                Image(
-                    painter = painterResource(id = MiddleGroups.icon),
-                    null,
-                    modifier = Modifier.offset(90.dp, -4.dp).clip(RoundedCornerShape(ClipSize.dp))
-                        .size(30.dp)
-                )
-
-            }
-        }
-    }
-}
-
-
-//轮播图还没做
-data class BannerItem(
-    val id: Int,
-    val imageRes: Int,
-    val text: String
-)
-
-// 示例数据（替换为自己的图片资源）
-val bannerList = listOf(
-    BannerItem(1, R.drawable.ic_launcher_background, "1"),
-    BannerItem(2, R.drawable.ic_launcher_background, "2"),
-    BannerItem(3, R.drawable.ic_launcher_background, "3"),
-)
 
 
 //还需要设置监听器：❗监听所在index
 @Composable
-fun CarouselBanner(modifier: Modifier = Modifier) {
+fun carouselBanner(modifier: Modifier = Modifier) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     var currentIndex by remember { mutableStateOf(0) } // 当前轮播索引
@@ -552,17 +314,27 @@ fun CarouselBanner(modifier: Modifier = Modifier) {
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = currentIndex // 初始显示第0项
     )
+    LaunchedEffect(listState.isScrollInProgress) {
+        // 当滑动结束时，同步 currentIndex 与当前可见项索引
+        if (!listState.isScrollInProgress) {
+            currentIndex = listState.firstVisibleItemIndex
+        }
+    }
+
     // 自动轮播逻辑：每秒切换一次
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(key1 = currentIndex, key2 = bannerList) {
         scope.launch {
-                while(true) {
-                    delay(3000) // 轮播间隔（3秒）
+            while (true) {
+                delay(1500) // 轮播间隔（1.5秒）
+                if (!listState.isScrollInProgress && bannerList.isNotEmpty()) {
                     currentIndex = (currentIndex + 1) % bannerList.size
                     listState.animateScrollToItem(
                         index = currentIndex,
                         scrollOffset = 0,
-                    )
+
+                        )
                 }
+            }
         }
     }
 
@@ -572,18 +344,18 @@ fun CarouselBanner(modifier: Modifier = Modifier) {
             state = listState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp),
+                .height(90.dp),
             horizontalArrangement = Arrangement.Center,
             userScrollEnabled = true // 允许手动滑动
 
         ) {
-            items(bannerList.size) { index ->
+            items(bannerList) { item ->
                 // 轮播项：图片 + 文字
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .width(screenWidth)
-                        .padding(4.dp)
+                        .padding(horizontal = allHorizonPadding)
                         .clip(RoundedCornerShape(ClipSize.dp))
                         .clickable
                         {
@@ -592,18 +364,12 @@ fun CarouselBanner(modifier: Modifier = Modifier) {
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = bannerList[index].imageRes),
+                        painter = painterResource(id = item.imageRes),
                         contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Crop,//填满容器
                         modifier = Modifier.fillMaxSize()
                     )
-                    Text(
-                        text = bannerList[index].text,
-                        color = Color.White,
-                        modifier = Modifier
-                            .background(Color.Black.copy(alpha = 0.5f))
-                            .padding(8.dp)
-                    )
+
                 }
             }
         }
@@ -612,23 +378,23 @@ fun CarouselBanner(modifier: Modifier = Modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset(0.dp,80.dp)
+                .offset(0.dp, 80.dp)
             ,
             horizontalArrangement = Arrangement.Center
 
         ) {
             bannerList.forEachIndexed { index, _ ->
                 val isSelected = index == currentIndex
-                val lineSize by animateDpAsState(if (isSelected) 40.dp else 41.dp)
+                val lineSize = 35.dp
                 val lineColor = if (isSelected) Color.White else Color.Gray
 
                 Box(
                     modifier = Modifier
                         .width(lineSize)
-                        .height(6.dp)
+                        .height(3.dp)
                         .background(lineColor)
-                        .alpha(0.5F)
-                   //     .clip(RoundedCornerShape(6.dp))
+                        .alpha(0.2F)
+                        //     .clip(RoundedCornerShape(6.dp))
                         .clickable { currentIndex = index }
                 )
             }
@@ -636,331 +402,9 @@ fun CarouselBanner(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
 @Preview
-fun MiddleLazyRow(modifier: Modifier = Modifier){
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(ClipSize.dp))
-                .height(250.dp),
-
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White, // 默认背景色（容器色）
-            )
-        )
-
-        {
-            Column(
-                modifier= Modifier
-                    .padding(horizontal = 10.dp, vertical = 10.dp)
-            ) {
-                Text("必看演出",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight(500)
-                    )
-
-                Spacer(modifier = Modifier.size(10.dp))
-
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(ClipSize.dp))
-                        .height(210.dp),
-                    horizontalArrangement = Arrangement.spacedBy(3.dp), // 卡片之间的间距
-                    contentPadding = PaddingValues(vertical = 8.dp) // 列表上下内边距
-                )
-                {
-                    items(MustToSeeShow()) { item ->
-                        MustToSeeShows(modifier,item)
-                    }
-                }
-            }
-        }
-    }
-
-
-
-
-
-
-data class MustToSeePicture(
-    val text1: String,
-    val cost: Int,
-    val imageID : Int // 图标资源
-)
-
-
-fun MustToSeeShow(): List<MustToSeePicture> {
-    return listOf<MustToSeePicture>(
-        MustToSeePicture(
-            text1 = "我真的好喜欢廖伦哲啊",
-            cost = 233,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-        MustToSeePicture(
-            text1 = "我也好喜欢",
-            cost = 190,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-        MustToSeePicture(
-            text1 = "我也好喜欢马嘉祺啊",
-            cost = 120,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-        MustToSeePicture(
-            text1 = "我也好喜欢刘耀文啊",
-            cost = 180,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-        MustToSeePicture(
-            text1 = "我也好喜欢lxx啊",
-            cost = 170,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-        )
-}
-
-@Composable
-fun MustToSeeShows(
-    modifier: Modifier = Modifier,
-    items:MustToSeePicture
-){
-    Card(
-        modifier = Modifier
-            .width(100.dp)
-            .height(220.dp),
-                colors = CardDefaults.cardColors(
-                containerColor = Color.White, // 默认背景色（容器色）
-    )
-
-    ){
-        Column(
-            modifier = Modifier.height(150.dp)
-        ) {
-            Image(
-                painter = painterResource(id = items.imageID),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(ClipSize.dp))
-                    .fillMaxWidth()
-            )
-            //不要打太多字球球了
-            Text(text=items.text1)
-
-        }
-        Row(
-            modifier = Modifier,
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-
-            ){
-            Text(text = "￥${items.cost}",
-                color = Color(255,0,0),
-                fontWeight = FontWeight(400)
-            )
-            Text(text = " 起",
-                color = Color.Gray
-            )
-
-        }
-    }
-}
-
-
-data class SameCityPicture(
-    val text1: String,
-    val cost: Int,
-    val imageID: Int, // 图标资源
-    val isClick : OnClickAction?= null
-)
-
-
-fun  SameCityPictures(): List< SameCityPicture> {
-    return listOf< SameCityPicture>(
-        SameCityPicture(
-            text1 = "我真的好喜欢廖伦哲啊",
-            cost = 233,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-        SameCityPicture(
-            text1 = "我也好喜欢刘耀国啊",
-            cost = 190,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-        SameCityPicture(
-            text1 = "我也好喜欢马嘉祺啊",
-            cost = 120,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-        SameCityPicture(
-            text1 = "我也好喜欢刘耀文啊",
-            cost = 180,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-        SameCityPicture(
-            text1 = "我也好喜欢lxx啊",
-            cost = 170,
-            imageID = R.drawable.ic_launcher_background,
-        ),
-    )
-}
-
-@Composable
-fun SameCityShows(
-    modifier: Modifier = Modifier,
-    items: SameCityPicture
-){
-    Card(
-        modifier = Modifier
-            .width(100.dp)
-            .height(220.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White, // 默认背景色（容器色）
-        )
-
-    ){
-        Column(
-            modifier = Modifier.height(150.dp)
-        ) {
-            Image(
-                painter = painterResource(id = items.imageID),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(ClipSize.dp))
-                    .fillMaxWidth()
-            )
-            //不要打太多字球球了
-            Text(text=items.text1)
-            Spacer(modifier = Modifier.size(10.dp))
-
-        }
-        Row(
-            modifier = Modifier,
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-
-            ){
-            Text(text = "￥${items.cost}",
-                color = Color(255,0,0),
-                fontWeight = FontWeight(400)
-            )
-            Text(text = " 起",
-                color = Color.Gray
-            )
-
-        }
-    }
-}
-
-@Composable
-@Preview
-fun MiddleLazyRow1(modifier: Modifier = Modifier){
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(ClipSize.dp))
-            .height(250.dp),
-
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White, // 默认背景色（容器色）
-        )
-    )
-
-    {
-        Column(
-            modifier= Modifier
-                .padding(horizontal = 10.dp, vertical = 10.dp)
-        ) {
-            Text("同城热点，本周热门推荐",
-                fontSize = 20.sp,
-                fontWeight = FontWeight(500)
-            )
-
-            Spacer(modifier = Modifier.size(10.dp))
-
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(ClipSize.dp))
-                    .height(210.dp),
-                horizontalArrangement = Arrangement.spacedBy(3.dp), // 卡片之间的间距
-                contentPadding = PaddingValues(vertical = 8.dp) // 列表上下内边距
-            )
-            {
-                items(SameCityPictures()) { item ->
-                    SameCityShows(modifier,item)
-                }
-            }
-        }
-    }
-}
-
-data class BottomShow(
-    val image:Int,
-    val boxText:String,
-    val title:String,
-    val date:String,
-    val cost:Int,
-    val isClick : OnClickAction?= null
-)
-
-val BottomShowsL =listOf<BottomShow>(
-    BottomShow(
-        image = R.drawable.ic_launcher_background,
-        boxText = "弹唱会",
-        title = "【佛山】“追”刘耀国巡回演唱会-佛山站",
-        date = "2025.11.29",
-        cost =480,
-    ),
-    BottomShow(
-        image = R.drawable.ic_launcher_background,
-        boxText = "弹唱会",
-        title = "【佛山】“追”刘耀国巡回演唱会-佛山站",
-        date = "2025.11.29",
-        cost =480,
-    ),
-    BottomShow(
-        image = R.drawable.ic_launcher_background,
-        boxText = "弹唱会",
-        title = "【佛山】“追”刘耀国巡回演唱会-佛山站",
-        date = "2025.11.29",
-        cost =480,
-    )
-
-
-
-
-    )
-val BottomShowsR =listOf<BottomShow>(
-    BottomShow(
-        image = R.drawable.ic_launcher_background,
-        boxText = "弹唱会",
-        title = "【佛山】“追”刘耀国巡回演唱会-佛山站",
-        date = "2025.11.29",
-        cost =480,
-    ),
-    BottomShow(
-        image = R.drawable.ic_launcher_background,
-        boxText = "弹唱会",
-        title = "【佛山】“追”刘耀国巡回演唱会-佛山站",
-        date = "2025.11.29",
-        cost =480,
-    ),
-    BottomShow(
-        image = R.drawable.ic_launcher_background,
-        boxText = "弹唱会",
-        title = "【佛山】“追”刘耀国巡回演唱会-佛山站",
-        date = "2025.11.29",
-        cost =480,
-    ),
-)
-
-
-@Composable
-@Preview
-fun BottomColumn(modifier: Modifier = Modifier) {
+fun bottomColumn(modifier: Modifier = Modifier) {
     Row(modifier = Modifier
         .fillMaxWidth())
     {
@@ -969,7 +413,7 @@ fun BottomColumn(modifier: Modifier = Modifier) {
     }
 }
 
-@SuppressLint("SuspiciousIndentation")
+
 @Composable
 fun BottomShowLR(
     modifier: Modifier = Modifier,
@@ -983,12 +427,14 @@ fun BottomShowLR(
                 modifier = Modifier
                     .width(componentWidth)
             ) {
+                Text(text = "为你推荐")
 
                 items.forEach{items->
                     Card(
                         modifier = Modifier
                             .width(componentWidth)
-                            .height(280.dp),
+                            .height(300.dp)
+                            .padding(horizontal = 5.dp, vertical = 5.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = Color.White, // 默认背景色（容器色）
                         )
@@ -1003,6 +449,7 @@ fun BottomShowLR(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(ClipSize.dp))
                                     .fillMaxWidth()
+                                    .height(150.dp)
                             )
                             //不要打太多字球球了
                             Text(text = items.title)

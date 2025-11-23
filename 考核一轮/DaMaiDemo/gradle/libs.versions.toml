@@ -15,10 +15,14 @@ appcompat = "1.6.1"
 material = "1.10.0"
 activity = "1.8.0"
 constraintlayout = "2.1.4"
+uiGraphics = "1.9.4"
+uiGraphicsVersion = "1.5.1"
+composeTesting = "1.0.0-alpha08"
 
 [libraries]
 androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 androidx-compose-foundation-layout = { module = "androidx.compose.foundation:foundation-layout", version.ref = "foundationLayout" }
+androidx-compose-ui-graphics-v151 = { module = "androidx.compose.ui:ui-graphics", version.ref = "uiGraphicsVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -40,6 +44,8 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
+androidx-compose-testing = { group = "androidx.xr.compose", name = "compose-testing", version.ref = "composeTesting" }
 
 
 [plugins]

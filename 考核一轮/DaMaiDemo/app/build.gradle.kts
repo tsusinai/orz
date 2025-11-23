@@ -55,7 +55,10 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)//跳转技术
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.ui.graphics)//跳转技术
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.testing)
 
 
     testImplementation(libs.junit)
