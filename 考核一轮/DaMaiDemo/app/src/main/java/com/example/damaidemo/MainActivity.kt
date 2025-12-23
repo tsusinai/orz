@@ -1,7 +1,7 @@
 package com.example.damaidemo
 
-import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,18 +21,20 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,272 +42,473 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.util.packInts
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.damaidemo.data.data_source.BottomShowsL
-import com.example.damaidemo.data.data_source.BottomShowsR
-import com.example.damaidemo.data.data_source.MiddleGroups
-import com.example.damaidemo.data.data_source.TopCardsLine1
-import com.example.damaidemo.data.data_source.TopCardsLine2
-import com.example.damaidemo.data.data_source.bannerList
-import com.example.damaidemo.data.model.BottomShow
-import com.example.damaidemo.data.model.MiddleGroup
-import com.example.damaidemo.data.model.TopCards
-import com.example.damaidemo.ui.components.Pictures
-import com.example.damaidemo.ui.components.TopCard
-import com.example.damaidemo.ui.components.cardLR1_MainGroupsOnMainScreen
-import com.example.damaidemo.ui.components.middleLazyRow
-import com.example.damaidemo.ui.components.middleLazyRow1
-import com.example.damaidemo.ui.components.typesOnMainScreenOnTop
+import com.example.damaidemo.data.data_source.personBannerList
+import com.example.damaidemo.screens.ClipSize
+import com.example.damaidemo.screens.allHorizonPadding
 import com.example.wechatdemo4.navigation.MyNavHost
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
-//                val navController = rememberNavController()
-//                MyNavHost(navController = navController, modifier = Modifier)
-                Home()
+                val navController = rememberNavController()
+                MyNavHost(navController = navController, modifier = Modifier)
+//                Home()
+//            PersonHomeT()
                 }
             }
         }
-var allHorizonPadding =8.dp
-var ClipSize = 10 //卡片切割角
 
-var CardLR1Weight = 190
-var CardLR1Height = 100
+
+@Composable
+@Preview
+fun PersonHomeT(modifier: Modifier=Modifier){
+    // 1. 创建 LazyListState 管理列表状态
+    val lazyListState = rememberLazyListState()
+
+    var totalScrollOffsetPx by remember { mutableStateOf(0) } // 总滚动像素（从顶部开始）
+
+    LaunchedEffect(key1 = lazyListState) {
+        snapshotFlow { lazyListState.layoutInfo }
+            .distinctUntilChanged()
+            .collect { layoutInfo ->
+                if (layoutInfo.visibleItemsInfo.isEmpty()) {
+                    totalScrollOffsetPx = 0
+                    return@collect
+                }
+                // 第一个可见项的信息
+                val firstVisibleItem = layoutInfo.visibleItemsInfo.first()
+
+                // 总偏移量 = 第一个可见项的位置偏移（从列表顶部开始计算）
+                totalScrollOffsetPx = -firstVisibleItem.offset
+            }
+    }
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xFFF7F4EF)),
+    )
+
+    TopBarInPersonHome(modifier,totalScrollOffsetPx)
+
+    LazyColumn(
+        modifier=modifier
+            .fillMaxSize()
+            .padding(top = 74.dp),
+        state = lazyListState
+    ) {
+        item{Tops(modifier)}
+        item{DaMaiVip()}
+        item{TopTool(modifier)}
+        item{MiddleTools()}
+        item{LazyTopTool()}
+        item{carouselBannerAtPerson(modifier = modifier)}
+        item{Bottom()}
+        item{DaMaiVip()}
+        item{DaMaiVip()}
+
+    }
+
+}
+
+val paddingHorizion = 10.dp
+val isVIP = false
+
+
+var subscription:Int=0
+var fans:Int=0
+var like:Int=0
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
-fun Home(
-
-    ){
-    val linearGradient = Brush.linearGradient(
-        colors = listOf(Color(0xFFFDDAE5),Color(0xFFFFFFFF)),
-        start = Offset(Float.POSITIVE_INFINITY,0f),
-        end = Offset(0f,Float.POSITIVE_INFINITY)
-    )
-
-    Scaffold(
-        topBar = {
-
-            TopAppBar(
-                modifier = Modifier
-                    .background(brush = linearGradient)
-                    .height(56.dp),
-
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                ),
-
-                navigationIcon = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    ) {
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color.Transparent
-                            ),
-                            modifier = Modifier
-                                .offset((-4).dp, 0.dp)
-                                .border(width = 1.dp, color = Color.Gray, shape = RectangleShape)
+fun TopBarInPersonHome(modifier: Modifier=Modifier,totalScrollOffsetPx:Int){
 
 
-                        ) {
-                            Text(
-                                text = "证照\n信息",
-                                style = TextStyle(
-                                    fontSize = 10.sp,
-                                    color = Color.Gray
-                                )
-                            )
-                        }
-
-                        Text(
-                            "福州",
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                color = Color.Black
-                            )
-                        )
-
-                    }
-                },//左侧导航栏区域
-                title = {
-
-
-                },//顶部标题区域
-                actions = {
-                    BadgedBox(
-                        // 核心：徽章内容（纯红点）
-                        badge = {
-                            Box(
-                                modifier = Modifier
-                                    .offset(2.dp, (-9).dp)
-                                    .size(10.dp) // 红点大小
-                                    .background(
-                                        color = Color(0xFFF44336), // 红色
-                                        shape = RoundedCornerShape(50) // 圆形
-                                    )
-                            )
-                        }
-                    ) {
-                        Box() {
-                            Image(
-                                painter = painterResource(R.drawable.chat), null,
-                                modifier = Modifier.size(25.dp)
-                            )
-
-
-                        }
-                    }
-                },//右侧按钮操作区域
-
+    TopAppBar(
+        navigationIcon = {
+            if(totalScrollOffsetPx>40){
+                Row(horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) { Image(
+                    modifier = modifier
+                        .padding(horizontal = paddingHorizion)
+                        .clip(CircleShape)
+                        .size(34.dp)
+                        .border(1.dp, Color(0xFFFFFFFF), CircleShape),
+                    painter = painterResource(id = R.drawable.top_test),
+                    contentDescription = null,
                 )
-
-        },
-        content = { innerPadding ->
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Color(242, 242, 242)),
-            ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                        .padding(innerPadding),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                )
-                {
-                    item { typesOnMainScreenOnTop(modifier = Modifier) }
-                    item { cardLR1_MainGroupsOnMainScreen(modifier = Modifier) }
-                    item { middleGroups(MiddleGroups) }
-                    item { carouselBanner(modifier = Modifier) }
-                    item { middleLazyRow(modifier = Modifier) }
-                    item { middleLazyRow1(modifier = Modifier) }
-                    item { bottomColumn(modifier = Modifier) }
+                    Text(text = "帅气的麦子",
+                        style = TextStyle(
+                            fontSize = 19.sp,
+                            fontWeight = Bold,
+                        ),
+                        color = if (isVIP) Color(0xFFFE231A) else Color(0xFF000000),
+                    )
                 }
             }
-        }
+        },
+        title = {},
+        actions = {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Icon(painter = painterResource(R.drawable.xian_chang),
+                    null,
+                    modifier=modifier.size(32.dp)
+                )
 
+                BadgedBox(
+                    badge = {
+                        Box(
+                            modifier = Modifier
+                                .offset(2.dp, (-9).dp)
+                                .size(10.dp)
+                                .background(
+                                    color = Color(0xFFF44336),
+                                    shape = RoundedCornerShape(50)
+                                )
+                        )
+                    }
+                ) {
+                    Box() {
+                        Icon(
+                            painter = painterResource(R.drawable.chat),
+                            contentDescription = "消息",
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                }
+            }
+        },
+
+        modifier=modifier,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor=Color.Transparent
+        )
     )
 }
 
 
+@Preview
 @Composable
-//@Preview
-fun middleGroups(
-    items: List<MiddleGroup>,
-){
-    var CardMWeight = 125
-    var CardMHeight = 60
+fun Tops(modifier:Modifier=Modifier){
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = allHorizonPadding),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+    Box(modifier=modifier
+        .fillMaxWidth()
+        .height(80.dp)
+        .background(color = Color(0xFFF7F4EF))
+    ){
+        Row(modifier = Modifier
+            .align(Alignment.CenterStart),
 
-        )
-        {
-            items.forEach { item ->
-            Card(
-                modifier = Modifier
-                    .height(CardMHeight.dp)
-                    .width(CardMWeight.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White, // 默认背景色（容器色）
-                )
+            horizontalArrangement = Arrangement.Center
+
+        ) {
+            Image(
+                modifier = modifier
+                    .padding(horizontal = paddingHorizion)
+                    .clip(CircleShape)
+                    .size(66.dp)
+                    .border(1.dp, Color(0xFFFFFFFF), CircleShape),
+                painter = painterResource(id = R.drawable.top_test),
+                contentDescription = null,
             )
-            {   Row(
-                modifier = Modifier.fillMaxWidth()
-            ){
-                Column(
-                    modifier = Modifier
-                        .padding(start = 7.dp,top = 9.dp, end = 13.dp),//这个来控制image？
-                        verticalArrangement= Arrangement.spacedBy(6.dp)
 
-                ) {
-                    Text(
-                        text = item.text1,
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.SansSerif,
-                        )
-                    )
-                        Text(
-                            text = item.text2,
-                            color = Color(214, 214, 214),
-                            style = TextStyle(
-                                fontSize = 12.sp,
-                                fontFamily = FontFamily.SansSerif,
-                            )
-                        )
-
-                    }
-                Image(
-                    painter = painterResource(id = item.imageId),
-                    null,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(ClipSize.dp))
-                        .size(25.dp)
-                        .align(Alignment.Bottom)
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 10.dp)
+            ) {
+                Text(text = "帅气的麦子",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = Bold,
+                    ),
+                    color = if (isVIP) Color(0xFFFE231A) else Color(0xFF000000),
                 )
+
+                Row(horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically){
+                    ShitText(subscription,"关注")
+                    ShitText(fans,"粉丝")
+                    ShitText(like,"获赞和想看")
                 }
             }
-                Spacer(modifier = Modifier.size(6.dp))
+        }
+
+    }
+}
+
+@Composable
+fun ShitText(data:Int,type:String) {
+    val TextSize = 16.sp
+
+    Row(horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    )
+    {
+        Text(
+            text = "$data  ",
+            style = TextStyle(
+                fontSize = TextSize,
+                fontWeight = Bold,
+            )
+        )
+        Text(
+            text = type+"  |    ",
+            style = TextStyle(
+                fontSize = TextSize,
+            ),
+            color = Color.Gray
+        )
+    }
+}
+
+@Preview
+@Composable
+fun DaMaiVip(modifier:Modifier= Modifier){
+    val TopTextSize = 18.sp
+    val TopVIPTextSize = 20.sp
+
+    val linearGradient1 = Brush.linearGradient(
+        colors = listOf(Color(0xFFEAAC85),Color(0xFFF7E5CC)),
+        end = Offset(x=0f,y=Float.POSITIVE_INFINITY),
+        start = Offset(x= Float.POSITIVE_INFINITY,y=0f)
+    )
+
+    Card(modifier=modifier
+        .fillMaxWidth()
+        .height(140.dp)
+        .clip(RoundedCornerShape(ClipSize.dp))
+        .background(brush = linearGradient1),
+
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+    )
+    {
+        Column(){
+            Row(modifier=modifier
+                .fillMaxWidth()
+                .padding(horizontal = paddingHorizion, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically,) {
+                    Text(
+                        text = "升级",
+                        style = TextStyle(
+                            fontSize = TopTextSize,
+                            fontWeight = Bold,
+                        ),
+                        color = Color(0xFF5F2E13)
+                    )
+                    Text(
+                        text = "大麦VIP",
+                        style = TextStyle(
+                            fontSize = TopVIPTextSize,
+                            fontWeight = Bold,
+                            fontFamily = FontFamily.Monospace
+                        ),
+                        color = Color(0xFF5F2E13)
+                    )
+                    Text(
+                        text = "可享权益",
+                        style = TextStyle(
+                            fontSize = TopTextSize,
+                            fontWeight = Bold,
+                        ),
+                        color = Color(0xFF5F2E13)
+                    )
+                }
+
+                Text(
+                    text = "全部权益 >",
+                    style = TextStyle(
+                        fontSize = TopTextSize,
+                    ),
+                    color = Color(0xFF5F2E13),
+                )
+
+            }
+        }
+
+    }
+}
+
+data class TopToolsExample(
+    val iconId:Int,
+    val test:String,
+)
+
+val TopTools = listOf<TopToolsExample>(
+    TopToolsExample(R.drawable.wo_de,"我的订单"),
+    TopToolsExample(R.drawable.wo_de,"优惠券"),
+    TopToolsExample(R.drawable.wo_de,"观演人"),
+    TopToolsExample(R.drawable.wo_de,"收货地址"),
+)
+
+@Composable
+@Preview
+fun TopTool(modifier:Modifier=Modifier,){
+    val cardHeight=90
+
+    Card(modifier=modifier
+        .fillMaxWidth()
+        .height(cardHeight.dp)
+        .clip(RoundedCornerShape(ClipSize.dp)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+    ){
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .height(cardHeight.dp)
+            .padding(horizontal = 15.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ){
+            TopTools(TopTools,cardHeight)
         }
     }
 }
 
-
-//还需要设置监听器：❗监听所在index
 @Composable
-fun carouselBanner(modifier: Modifier = Modifier) {
+fun TopTools(items: List<TopToolsExample>,cardHeight:Int) {
+    items.forEach { items ->
+        Column(
+            modifier = Modifier
+                .width(cardHeight.dp)
+        ) {
+            Image(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .size(40.dp),
+                painter = painterResource(id =items.iconId),
+                contentDescription = null
+            )
+            Spacer(modifier = Modifier.size(2.dp))
+            Text(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally),
+                text = items.test,
+                maxLines = 1, // 禁止换行，只显示1行
+                //overflow = TextOverflow.Ellipsis // 超出部分显示省略号
+
+                style = TextStyle(
+                    fontSize = 14.sp
+                )
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun MiddleTools(modifier:Modifier=Modifier){
+
+    // 获取屏幕宽度（dp）
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    // 组件宽度 = 屏幕宽度的一半
+    val componentWidth = screenWidth / 2
+
+    val cardHeight=70
+    val paddingHorizion=15.dp
+
+    Box(modifier=modifier
+        .fillMaxWidth()
+        .height(cardHeight.dp)
+        .clip(RoundedCornerShape(ClipSize.dp))
+        .background(Color(0xFFFFFFFF))
+    ) {
+
+        Row(modifier = modifier
+            .align(Alignment.Center),
+        ) {
+            Row(
+                modifier = Modifier
+                    .width(componentWidth)
+                    .padding(horizontal = paddingHorizion, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "抢票预约",
+                    maxLines = 1, // 禁止换行，只显示1行
+                    //overflow = TextOverflow.Ellipsis // 超出部分显示省略号
+                    style = TextStyle(
+                        fontSize = 14.sp
+                    ),
+                    color = Color.Gray
+
+                )
+                Text(
+                    text = ">",
+                    maxLines = 1, // 禁止换行，只显示1行
+                    //overflow = TextOverflow.Ellipsis // 超出部分显示省略号
+                    style = TextStyle(
+                        fontSize = 14.sp
+                    )
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .width(componentWidth)
+                    .padding(horizontal = paddingHorizion, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "想看",
+                    maxLines = 1, // 禁止换行，只显示1行
+                    //overflow = TextOverflow.Ellipsis // 超出部分显示省略号
+                    style = TextStyle(
+                        fontSize = 14.sp
+                    ),
+                    color = Color.Gray
+                )
+                Text(
+                    text = ">",
+                    maxLines = 1, // 禁止换行，只显示1行
+                    //overflow = TextOverflow.Ellipsis // 超出部分显示省略号
+                    style = TextStyle(
+                        fontSize = 14.sp
+                    )
+                )
+
+            }
+        }
+    }
+
+}
+
+
+@Composable
+fun carouselBannerAtPerson(modifier: Modifier = Modifier) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     var currentIndex by remember { mutableStateOf(0) } // 当前轮播索引
@@ -314,26 +517,16 @@ fun carouselBanner(modifier: Modifier = Modifier) {
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = currentIndex // 初始显示第0项
     )
-    LaunchedEffect(listState.isScrollInProgress) {
-        // 当滑动结束时，同步 currentIndex 与当前可见项索引
-        if (!listState.isScrollInProgress) {
-            currentIndex = listState.firstVisibleItemIndex
-        }
-    }
-
     // 自动轮播逻辑：每秒切换一次
-    LaunchedEffect(key1 = currentIndex, key2 = bannerList) {
+    LaunchedEffect(key1 = Unit) {
         scope.launch {
-            while (true) {
+            while(true) {
                 delay(1500) // 轮播间隔（1.5秒）
-                if (!listState.isScrollInProgress && bannerList.isNotEmpty()) {
-                    currentIndex = (currentIndex + 1) % bannerList.size
-                    listState.animateScrollToItem(
-                        index = currentIndex,
-                        scrollOffset = 0,
-
-                        )
-                }
+                currentIndex = (currentIndex + 1) % personBannerList.size
+                listState.animateScrollToItem(
+                    index = currentIndex,
+                    scrollOffset = 0,
+                )
             }
         }
     }
@@ -349,8 +542,8 @@ fun carouselBanner(modifier: Modifier = Modifier) {
             userScrollEnabled = true // 允许手动滑动
 
         ) {
-            items(bannerList) { item ->
-                // 轮播项：图片 + 文字
+            items(personBannerList.size) { index ->
+                // 轮播项：图片
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -364,7 +557,7 @@ fun carouselBanner(modifier: Modifier = Modifier) {
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = item.imageRes),
+                        painter = painterResource(id = personBannerList[index].imageRes),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,//填满容器
                         modifier = Modifier.fillMaxSize()
@@ -383,7 +576,7 @@ fun carouselBanner(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.Center
 
         ) {
-            bannerList.forEachIndexed { index, _ ->
+            personBannerList.forEachIndexed { index, _ ->
                 val isSelected = index == currentIndex
                 val lineSize = 35.dp
                 val lineColor = if (isSelected) Color.White else Color.Gray
@@ -402,146 +595,119 @@ fun carouselBanner(modifier: Modifier = Modifier) {
     }
 }
 
+
 @Composable
 @Preview
-fun bottomColumn(modifier: Modifier = Modifier) {
-    Row(modifier = Modifier
-        .fillMaxWidth())
-    {
-        BottomShowLR(modifier,BottomShowsL)
-        BottomShowLR1(modifier,BottomShowsR)
-    }
-}
-
-
-@Composable
-fun BottomShowLR(
-    modifier: Modifier = Modifier,
-        items: List<BottomShow>,
+fun Bottom(modifier:Modifier=Modifier){
+    Box(modifier=modifier
+        .padding(vertical = 10.dp)
+    )
+    Column(modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-// 获取屏幕宽度（dp）
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-        // 组件宽度 = 屏幕宽度的一半
-    val componentWidth = screenWidth / 2
-            Column(
-                modifier = Modifier
-                    .width(componentWidth)
-            ) {
-                Text(text = "为你推荐")
-
-                items.forEach{items->
-                    Card(
-                        modifier = Modifier
-                            .width(componentWidth)
-                            .height(300.dp)
-                            .padding(horizontal = 5.dp, vertical = 5.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White, // 默认背景色（容器色）
-                        )
-
-                    ) {
-                        Column(
-                            modifier = Modifier.height(200.dp)
-                        ) {
-                            Image(
-                                painter = painterResource(id = items.image),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(ClipSize.dp))
-                                    .fillMaxWidth()
-                                    .height(150.dp)
-                            )
-                            //不要打太多字球球了
-                            Text(text = items.title)
-                            Text(text = items.date)
-
-                        }
-                        Row(
-                            modifier = Modifier,
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-
-                            ) {
-                            Text(
-                                text = "￥sdfsdf",
-                                color = Color(255, 0, 0),
-                                fontWeight = FontWeight(400)
-                            )
-                            Text(
-                                text = " 起",
-                                color = Color.Gray
-                            )
-
-                        }
-                    }
-                }
-            }
-      }
-
-@Composable
-fun BottomShowLR1(
-    modifier: Modifier = Modifier,
-    items: List<BottomShow>,
-) {
-// 获取屏幕宽度（dp）
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    // 组件宽度 = 屏幕宽度的一半
-    val componentWidth = screenWidth / 2
-    Column(
-        modifier = Modifier
-            .width(componentWidth)
-    ) {
-        Spacer(modifier = Modifier.size(80.dp))
-
-        items.forEach{items->
-            Card(
-                modifier = Modifier
-                    .width(componentWidth)
-                    .height(280.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White, // 默认背景色（容器色）
+        Text(text = "动态",
+            style = TextStyle(
+                fontSize = 20.sp,
+            ),
+            modifier = Modifier
+                .offset(10.dp,0.dp)
+        )
+        Card(modifier=modifier
+            .fillMaxWidth()
+            .height(110.dp)
+            .clip(RoundedCornerShape(ClipSize.dp))
+            .align(Alignment.Start),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+        ){
+            Column(modifier = modifier
+                .padding(horizontal = 10.dp)
+                .offset(0.dp,6.dp),
+            )
+            {
+                Text(text = "0元观看好演出",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = Bold,
+                    ),
                 )
-
-            ) {
-                Column(
-                    modifier = Modifier.height(200.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = items.image),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(ClipSize.dp))
-                            .fillMaxWidth()
-                    )
-                    //不要打太多字球球了
-                    Text(text = items.title)
-                    Text(text = items.date)
-
-                }
-                Row(
-                    modifier = Modifier,
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-
-                    ) {
-                    Text(
-                        text = "￥sdfsdf",
-                        color = Color(255, 0, 0),
-                        fontWeight = FontWeight(400)
-                    )
-                    Text(
-                        text = " 起",
-                        color = Color.Gray
-                    )
-
-                }
+                Text(text = "观演团活动招募中",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                    ),
+                )
             }
+
         }
     }
 }
 
 
+val LazyTopTools = listOf<TopToolsExample>(
+    TopToolsExample(R.drawable.wo_de,"我的订单"),
+    TopToolsExample(R.drawable.wo_de,"优惠券"),
+    TopToolsExample(R.drawable.wo_de,"观演人"),
+    TopToolsExample(R.drawable.wo_de,"收货地址"),
+    TopToolsExample(R.drawable.wo_de,"收货地址"),
+    TopToolsExample(R.drawable.wo_de,"收货地址"),
+    TopToolsExample(R.drawable.wo_de,"收货地址"),
+    TopToolsExample(R.drawable.wo_de,"收货地址"),
 
+    )
+@Composable
+@Preview
+fun LazyTopTool(modifier:Modifier=Modifier){
+    LazyRowTool(modifier = Modifier,LazyTopTools,120)
+}
+
+@Composable
+fun LazyRowTool(modifier:Modifier=Modifier,items: List<TopToolsExample>,cardHeight:Int){
+    val cardHeight=90
+    // 获取屏幕宽度（dp）
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
+    val componentWidth = screenWidth / 4
+
+    Card(modifier=modifier
+        .fillMaxWidth()
+        .height(cardHeight.dp)
+        .clip(RoundedCornerShape(ClipSize.dp)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+    ){
+        LazyRow(modifier = Modifier
+            .fillMaxWidth()
+            .height(cardHeight.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ){
+            items(items) { items ->
+                Column(
+                    modifier = Modifier
+                        .width(componentWidth)
+                        .height(cardHeight.dp)
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .size(40.dp),
+                        painter = painterResource(id =items.iconId),
+                        contentDescription = null
+                    )
+                    Spacer(modifier = Modifier.size(2.dp))
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally),
+                        text = items.test,
+                        maxLines = 1, // 禁止换行，只显示1行
+                        //overflow = TextOverflow.Ellipsis // 超出部分显示省略号
+
+                        style = TextStyle(
+                            fontSize = 14.sp
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
 
 
 

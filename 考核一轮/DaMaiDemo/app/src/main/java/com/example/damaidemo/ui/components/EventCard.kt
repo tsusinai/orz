@@ -48,11 +48,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.example.damaidemo.CardLR1Height
-import com.example.damaidemo.CardLR1Weight
-import com.example.damaidemo.ClipSize
 import com.example.damaidemo.R
-import com.example.damaidemo.allHorizonPadding
 import com.example.damaidemo.data.data_source.SameCityPictures
 import com.example.damaidemo.data.data_source.TopCardsLine1
 import com.example.damaidemo.data.data_source.TopCardsLine2
@@ -60,9 +56,15 @@ import com.example.damaidemo.data.data_source.mustToSeeShow
 import com.example.damaidemo.data.model.MustToSeePicture
 import com.example.damaidemo.data.model.SameCityPicture
 import com.example.damaidemo.data.model.TopCards
+import com.example.damaidemo.screens.allHorizonPadding
 import kotlin.collections.forEach
 
 
+var allHorizonPadding =8.dp
+var ClipSize = 10 //卡片切割角
+
+var CardLR1Weight = 196
+var CardLR1Height = 100
 //此文件用于存放各个组件🤔
 
 //顶部卡片群中的各个小玩意
@@ -139,13 +141,14 @@ fun TopCardLine(
 @Composable
 @Preview
 fun middleLazyRow(modifier: Modifier = Modifier){
-    val cardHeight_in_middleLazyRow = 230.dp
-    val lazyrowHeight_in_middleLazyRow = 230.dp
+    val cardHeight_in_middleLazyRow = 220.dp
+    val lazyrowHeight_in_middleLazyRow = 220.dp
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(ClipSize.dp))
-            .height(cardHeight_in_middleLazyRow),
+            .height(cardHeight_in_middleLazyRow)
+            .padding(horizontal = allHorizonPadding),
 
         colors = CardDefaults.cardColors(
             containerColor = Color.White, // 默认背景色（容器色）
@@ -155,21 +158,21 @@ fun middleLazyRow(modifier: Modifier = Modifier){
     {
         Column(
             modifier= Modifier
-                .padding(horizontal = 10.dp, vertical = 10.dp)
+                .padding(horizontal = 10.dp, vertical = 8.dp)
         ) {
             Text("必看演出",
                 fontSize = 20.sp,
-                fontWeight = FontWeight(500)
+                style = TextStyle(
+                    fontWeight = FontWeight(500),
+                ),
             )
-
-            Spacer(modifier = Modifier.size(5.dp))
 
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(ClipSize.dp))
                     .height(lazyrowHeight_in_middleLazyRow),
-                horizontalArrangement = Arrangement.spacedBy(8.dp), // 卡片之间的间距
+                horizontalArrangement = Arrangement.spacedBy(7.dp), // 卡片之间的间距
                 contentPadding = PaddingValues(vertical = 8.dp) // 列表上下内边距
             )
             {
@@ -221,7 +224,7 @@ fun MustToSeeShows(
                 Box(modifier = Modifier
                     .align(Alignment.TopEnd)
                     .offset(-5.dp,5.dp)
-                    .clip(RoundedCornerShape(3.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFF000000))
                 ){
                     Text(
@@ -231,41 +234,46 @@ fun MustToSeeShows(
                         ),
                         color = Color(0xFFFFFFFF),
                         modifier = Modifier
-                            .padding(1.dp)
-
-
+                            .padding(start = 4.dp, end = 4.dp,top =1.dp, bottom = 2.dp)
                     )
                 }
             }
+
             //不要打太多字球球了
             Text(
                 text = items.text1,
                 maxLines = 2, // 禁止换行，只显示2行
                 overflow = TextOverflow.Ellipsis, // 超出部分显示省略号
+                style = TextStyle(
+                    fontWeight = Bold,
+                    fontSize = 12.sp
+                ),
+                modifier=Modifier
+                    .padding(top = 3.dp)
             )
-
-    }
-
-
+         }
         Row(
             modifier = Modifier,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-
             ) {
             Text(
                 text = "￥${items.cost}",
-                color = Color(255, 0, 0),
-                fontWeight = FontWeight(400),
-
-
+                color = Color(0xFFFA677D),
+                style = TextStyle(
+                    fontWeight = Bold,
+                    fontSize = 16.sp
+                    ),
+                modifier = Modifier
+                    .offset(0.dp,-3.dp)
                 )
             Text(
                 text = " 起",
-                color = Color.Gray
+                color = Color.Gray,
+                style = TextStyle(
+                    fontSize = 13.sp
+                ),
             )
-        }
-
+             }
         }
     }
 
@@ -273,8 +281,15 @@ fun MustToSeeShows(
 @Composable
 @Preview
 fun middleLazyRow1(modifier: Modifier = Modifier){
-    val cardHeight_in_middleLazyRow = 240.dp
-    val lazyrowHeight_in_middleLazyRow = 240.dp
+
+    val linearGradient1 = Brush.linearGradient(
+        colors = listOf(Color(0xFFFFFFFF), Color(0xFFDCE1FB)), // 紫色 → 青色
+        end = Offset(200f, 0f),
+        start = Offset(200f, Float.POSITIVE_INFINITY), // 水平渐变
+    )
+
+    val cardHeight_in_middleLazyRow = 230.dp
+    val lazyrowHeight_in_middleLazyRow = 230.dp
 
     // 1:定义渐变（线性渐变：从左到右）
     val linearGradient = Brush.linearGradient(
@@ -287,12 +302,14 @@ fun middleLazyRow1(modifier: Modifier = Modifier){
 
     Card(
         colors = CardDefaults.cardColors(
-         containerColor = Color.White),
+         containerColor = Color.Transparent),
 
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(ClipSize.dp))
             .height(cardHeight_in_middleLazyRow)
+            .padding(horizontal = allHorizonPadding)
+            .background(linearGradient1,RoundedCornerShape(ClipSize.dp))
+            .clip(RoundedCornerShape(ClipSize.dp))
     )
 
     {
@@ -330,20 +347,19 @@ fun middleLazyRow1(modifier: Modifier = Modifier){
 
                 Text("本周热点推荐",
                     style = TextStyle(
-                        fontSize = 20.sp,),
+                        fontSize = 20.sp,
+                        fontWeight = Bold
+                    ),
                     modifier=Modifier
                         .offset(90.dp,0.dp)
                 )
             }
-
-
-
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(ClipSize.dp))
                     .height(lazyrowHeight_in_middleLazyRow),
-                horizontalArrangement = Arrangement.spacedBy(8.dp), // 卡片之间的间距
+                horizontalArrangement = Arrangement.spacedBy(7.dp), // 卡片之间的间距
                 contentPadding = PaddingValues(vertical = 8.dp) // 列表上下内边距
             )
             {
@@ -364,7 +380,7 @@ fun SameCityShows(
     val imageHeight = 100.dp
     Card(
         modifier = Modifier
-            .width(80.dp)
+            .width(75.dp)
             .height(mustToSeeShowHeight),
         colors = CardDefaults.cardColors(
             containerColor = Color.White, // 默认背景色（容器色）
@@ -404,16 +420,21 @@ fun SameCityShows(
                         ),
                         color = Color(0xFFFFFFFF),
                         modifier = Modifier
-                            .padding(1.dp)
-
+                            .padding(start = 4.dp, end = 4.dp,top =1.dp, bottom = 2.dp)
                     )
                 }
             }
 
-            //不要打太多字球球了
-            Text(text=items.text1,
+            Text(
+                text = items.text1,
                 maxLines = 2, // 禁止换行，只显示2行
                 overflow = TextOverflow.Ellipsis, // 超出部分显示省略号
+                style = TextStyle(
+                    fontWeight = Bold,
+                    fontSize = 12.sp
+                ),
+                modifier=Modifier
+                    .padding(top = 3.dp)
             )
 
 
@@ -421,28 +442,36 @@ fun SameCityShows(
                 fontWeight = FontWeight(200),
                 maxLines = 1, // 禁止换行，只显示2行
                 overflow = TextOverflow.Ellipsis, // 超出部分显示省略号
-                color = Color.Gray
+                color = Color.Gray,
+
+                style = TextStyle(
+                    fontWeight = Bold,
+                    fontSize = 12.sp
+                ),
             )
 
-        Row(
-            modifier = Modifier,
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-            Text(
-                text = "￥${items.cost}",
-                color = Color(255, 0, 0),
-                fontWeight = FontWeight(400),
-
-
+                Text(
+                    text = "￥${items.cost}",
+                    color = Color(0xFFFA677D),
+                    style = TextStyle(
+                        fontWeight = Bold,
+                        fontSize = 16.sp
+                    ),
+                    modifier = Modifier
+                        .offset(0.dp,-1.dp)
                 )
-            Text(
-                text = " 起",
-                color = Color.Gray
-            )
-        }
-
+                Text(
+                    text = " 起",
+                    color = Color.Gray,
+                    style = TextStyle(
+                        fontSize = 13.sp
+                    ),
+                )
+            }
         }
     }
 }
@@ -553,7 +582,7 @@ fun cardLR1_MainGroupsOnMainScreen(modifier: Modifier = Modifier){
             }
         }
 
-        Spacer(modifier = Modifier.size(9.dp))
+        Spacer(modifier = Modifier.size(6.dp))
 
         Card(
             modifier = Modifier

@@ -1,3 +1,9 @@
+configurations.all {
+    resolutionStrategy {
+        force("androidx.test.espresso:espresso-core:3.5.0")
+    }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -13,7 +19,7 @@ android {
         minSdk = 28
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -59,6 +65,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)//跳转技术
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.testing)
+    implementation("androidx.core:core-splashscreen:1.0.0")
+    implementation(libs.androidx.foundation)
+    implementation(libs.androidx.compose.ui.text)
 
 
     testImplementation(libs.junit)

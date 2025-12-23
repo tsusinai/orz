@@ -2,24 +2,13 @@ package com.example.wechatdemo4.navigation
 
 
 //导入页面
-import android.content.Context
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -29,10 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -44,7 +31,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.damaidemo.R
 import com.example.damaidemo.screens.Home
 import com.example.damaidemo.screens.Live
+import com.example.damaidemo.screens.MyOrders
 import com.example.damaidemo.screens.PersonHome
+import com.example.damaidemo.screens.ReSou
+import com.example.damaidemo.screens.SearchScreen
 import com.example.damaidemo.screens.Ticket
 import com.example.damaidemo.screens.VIP
 
@@ -60,6 +50,10 @@ object NavRoutes {   //导航常数
 
     const val TICKET = "ticket"
     const val PERSON_HOME = "personHome"
+
+    const val My_ORDER = "myOrder"
+
+    const val SEARCH_SCREEN = "searchScreen"
 }
 
 //// 2. 导航项数据模型（每个底部按钮的配置）
@@ -76,12 +70,12 @@ val navItems = listOf(
         icon = R.drawable.jing_xan// 或使用Icons.Default.$#%@
     ),
     NavItem(
-        route = NavRoutes.LIVE,
+        route = NavRoutes.SEARCH_SCREEN,
         label = "现场",
         icon = R.drawable.xian_chang// 或使用Icons.Default.$#%@
     ),
     NavItem(
-        route = NavRoutes.VIP,
+        route = NavRoutes.My_ORDER,
         label = "大麦 VIP",
         icon = R.drawable.vip// 或使用Icons.Default.$#%@
     ),
@@ -95,6 +89,7 @@ val navItems = listOf(
         label = "我的",
         icon = R.drawable.wo_de// 或使用Icons.Default.$#%@
     ),
+
 )
 
 //导航容器层：
@@ -128,9 +123,16 @@ fun MyNavHost(navController: NavHostController,modifier: Modifier){ Scaffold(
             composable(NavRoutes.PERSON_HOME) {
                 PersonHome(navController)  //目标地址：主界面
             }
+            composable(NavRoutes.My_ORDER) {
+                MyOrders(modifier=modifier)  //目标地址：主界面
+            }
+            composable(NavRoutes.SEARCH_SCREEN) {
+                SearchScreen(modifier=modifier)  //目标地址：主界面
+            }
         }
     }
 }
+
 
 //导航ui层
 @OptIn(ExperimentalMaterial3Api::class)
@@ -144,6 +146,9 @@ fun CustomBottomNavigation(
     val navBackStackEntry by navController.currentBackStackEntryAsState() //监听导航控制器的回退栈状态，返回当前显示页面的导航条目
     val currentRoute = navBackStackEntry?.destination?.route //获取当前页面的路由（如 "home" 或 "pas"），用于判断哪个导航项应该被选中
 
+    // 2. 核心判断：当前路由是否在items的路由列表中
+    val isCurrentRouteInList = items.any { it.route == currentRoute }
+    if (isCurrentRouteInList){
     NavigationBar(
         modifier = Modifier.height(80.dp),
         containerColor = Color.White.copy(alpha = 0.2f),  //NavigationBar：Material3 提供的底部导航容器组件
@@ -189,7 +194,7 @@ fun CustomBottomNavigation(
                         modifier=Modifier
                         .offset(x = 0.dp, y = (-2).dp)
                     )
-                }
+                }}
                 }
             }
         }
