@@ -83,6 +83,7 @@ dependencies {
 }
 
 dependencies {
+    implementation(libs.androidx.animation.core)
     val room_version = "2.8.4"
 
     implementation("androidx.room:room-runtime:$room_version")

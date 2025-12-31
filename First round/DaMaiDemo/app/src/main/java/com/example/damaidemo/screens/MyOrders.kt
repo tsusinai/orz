@@ -1,17 +1,20 @@
 package com.example.damaidemo.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,35 +38,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.damaidemo.R
+import com.example.damaidemo.data.data_source.YanChuRows
+import com.example.damaidemo.data.data_source.orderTypes
+import com.example.damaidemo.data.model.YanChuRow
+import com.example.damaidemo.data.model.orderTypesExample
+import com.example.damaidemo.data.model.ordertypes
+import com.example.damaidemo.ui.theme.allHorizonPadding
 
-enum class ordertypes {
-    YanChu,
-    TuanGou,
-    DianYin,
-    XiaoShi,
-    ShangCheng,
-    JuBenSha,
-}
 
-data class orderTypesExample(
-    val orders:String,
-    val type: ordertypes,
-)
-
-val orderTypes=listOf(
-    orderTypesExample("演出/门票", ordertypes.YanChu),
-    orderTypesExample("团购卷", ordertypes.TuanGou),
-    orderTypesExample("电影", ordertypes.DianYin),
-    orderTypesExample("小食", ordertypes.XiaoShi),
-    orderTypesExample("商城", ordertypes.ShangCheng),
-    orderTypesExample("剧本杀", ordertypes.JuBenSha)
-
-)
-
-@Preview
 @Composable
-fun MyOrders(modifier:Modifier=Modifier){
+fun MyOrders(modifier:Modifier=Modifier, navController: NavController){
 
     var curType by remember{ mutableStateOf(ordertypes.YanChu) }
 
@@ -95,7 +81,7 @@ fun Top(modifier:Modifier=Modifier){
         Box(modifier=modifier
             .fillMaxSize()
         ){
-            Icon(painter = painterResource(R.drawable.person_topbar_1),
+            Icon(painter = painterResource(R.drawable.icon_back),
             null,
                 modifier=modifier
                     .size(32.dp)
@@ -144,7 +130,7 @@ fun TopLazy(modifier: Modifier =Modifier, items: List<orderTypesExample>, curTyp
                 modifier=modifier
                     .height(40.dp)
                     .width(lazyWidth)
-                    .clickable{  onTypeChange(items.type) }//通过回调修改父组件状态，原代码直接赋值无法生效
+                    .clickable { onTypeChange(items.type) }//通过回调修改父组件状态，原代码直接赋值无法生效
             ){
                 Text(text = items.orders,
                     fontSize = 16.sp,
@@ -169,70 +155,83 @@ fun TopLazy(modifier: Modifier =Modifier, items: List<orderTypesExample>, curTyp
     }
 }
 
-
 enum class YanChuRowTypes{
     SouSuo,FuKuan,SouHuo,PinJia
-}
-
-
-data class YanChuRow(
-    val name:String,
-    val types: YanChuRowTypes
-)
-
-val YanChuRows=listOf(
-    YanChuRow("搜索", YanChuRowTypes.SouSuo),
-    YanChuRow("待付款",YanChuRowTypes.FuKuan),
-    YanChuRow("待收货",YanChuRowTypes.SouHuo),
-    YanChuRow("待评价", YanChuRowTypes.PinJia),
-)
-
-
-@Composable
-@Preview
-fun YanChuT(){
-
 }
 
 @Composable
 fun YanChu(modifier:Modifier=Modifier,items: List<YanChuRow>){
     var YanChuCurtype by remember{ mutableStateOf(YanChuRowTypes.SouSuo) }
 
-    Row(modifier = modifier
-        .fillMaxWidth()
-        .height(40.dp)
-        .background(Color.White)
-        .padding(horizontal = allHorizonPadding),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    Column {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .background(Color.White)
+                .padding(horizontal = allHorizonPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
 
-    ){
-        items.forEach{items ->
-        Box(modifier = Modifier
-            .padding(end = 6.dp)
         ) {
-                Button(
-                    onClick = {YanChuCurtype=items.types},
+            items.forEach { items ->
+                Box(
                     modifier = Modifier
-                        .height(30.dp),
-                    shape = RoundedCornerShape(20.dp), // 按钮圆角
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if(YanChuCurtype==items.types)Color(0xFFFF85A2)  else Color(0xFFBFC9D8)// 按钮粉色（接近截图）
+                        .padding(end = 6.dp)
+                ) {
+                    Button(
+                        onClick = { YanChuCurtype = items.types },
+                        modifier = Modifier
+                            .height(30.dp),
+                        shape = RoundedCornerShape(20.dp), // 按钮圆角
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (YanChuCurtype == items.types) Color(0xFFFF85A2) else Color(
+                                0xFFBFC9D8
+                            )// 按钮粉色（接近截图）
+                        )
+                    ) {}
+                    Text(
+                        text = items.name,
+                        color = if (YanChuCurtype == items.types) Color.White else Color(0xFF000000),
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .align(Alignment.Center)
                     )
-                ) {}
-                Text(
-                    text = items.name,
-                    color = if(YanChuCurtype==items.types)Color.White else Color(0xFF000000),
-                    fontSize = 14.sp,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                )
-             }
+                }
+            }
+        }
+
+        when(YanChuCurtype){
+            YanChuRowTypes.SouSuo -> null
+            else -> null
         }
     }
 }
 
+@Preview
+@Composable
+fun YanChuColumn(){
+    LazyColumn(modifier=Modifier
+        .fillMaxWidth()
+        .padding(top = 6.dp)) {
+        item{
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .padding(horizontal = allHorizonPadding)
+            ){
+                Image(painter = painterResource(R.drawable.gao_yang),
+                    null,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .fillMaxHeight()
+                        .width(50.dp)
+                        .padding(vertical = 6.dp)
+                    )
+            }
+        }
 
-fun order(){
-
+    }
 }
+
+

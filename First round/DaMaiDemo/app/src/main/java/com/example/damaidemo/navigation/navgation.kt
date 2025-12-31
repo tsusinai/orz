@@ -2,6 +2,7 @@ package com.example.wechatdemo4.navigation
 
 
 //导入页面
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -38,6 +39,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.splashscreen.SplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -50,6 +52,7 @@ import com.example.damaidemo.screens.Live
 import com.example.damaidemo.screens.MyOrders
 import com.example.damaidemo.screens.PersonHome
 import com.example.damaidemo.screens.SearchScreen
+import com.example.damaidemo.screens.SplashAdScreen
 import com.example.damaidemo.screens.Ticket
 import com.example.damaidemo.screens.VIP
 import kotlinx.coroutines.delay
@@ -70,6 +73,8 @@ object NavRoutes {   //导航常数
     const val My_ORDER = "myOrder"
 
     const val SEARCH_SCREEN = "searchScreen"
+
+    const val SPLASH = "splash"
 }
 
 //// 2. 导航项数据模型（每个底部按钮的配置）
@@ -88,13 +93,13 @@ val navItems = listOf(
         selectIcon = R.drawable.bottom_select_1
     ),
     NavItem(
-        route = NavRoutes.SEARCH_SCREEN,
+        route = NavRoutes.LIVE,
         label = "现场",
         icon = R.drawable.bottom_2,// 或使用Icons.Default.$#%@
         selectIcon = R.drawable.bottom_select_2
     ),
     NavItem(
-        route = NavRoutes.My_ORDER,
+        route = NavRoutes.VIP,
         label = "大麦 VIP",
         icon = R.drawable.bottom_5,// 或使用Icons.Default.$#%@
         selectIcon =  R.drawable.bottom_select_5
@@ -112,6 +117,7 @@ val navItems = listOf(
         selectIcon =  R.drawable.bottom_select_4
     ),
 
+
 )
 
 //导航容器层：
@@ -127,7 +133,7 @@ fun MyNavHost(navController: NavHostController,modifier: Modifier){ Scaffold(
     ) { innerPadding -> //innerPadding内部作用域于
         NavHost(
             navController = navController,
-            startDestination = NavRoutes.HOME, //主页面
+            startDestination = NavRoutes.SPLASH, //主页面
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(NavRoutes.HOME) {
@@ -146,11 +152,15 @@ fun MyNavHost(navController: NavHostController,modifier: Modifier){ Scaffold(
                 PersonHome(navController)  //目标地址：主界面
             }
             composable(NavRoutes.My_ORDER) {
-                MyOrders(modifier=modifier)  //目标地址：主界面
+                MyOrders(modifier,navController)  //目标地址：主界面
             }
             composable(NavRoutes.SEARCH_SCREEN) {
-                SearchScreen(modifier=modifier)  //目标地址：主界面
+                SearchScreen(modifier,navController)  //目标地址：主界面
             }
+            composable(NavRoutes.SPLASH) {
+                SplashAdScreen(navController)  //目标地址：主界面
+            }
+
         }
     }
 }
@@ -165,11 +175,12 @@ fun CustomBottomNavigation(
 ) {
 
 
-
-
     // 获取当前导航状态
     val navBackStackEntry by navController.currentBackStackEntryAsState() //监听导航控制器的回退栈状态，返回当前显示页面的导航条目
     val currentRoute = navBackStackEntry?.destination?.route //获取当前页面的路由（如 "home" 或 "pas"），用于判断哪个导航项应该被选中
+
+    // 2. 监听 Navigation 路由变化，同步更新本地状态（仅做兜底，核心依赖手动设置）
+
 
     // 2. 核心判断：当前路由是否在items的路由列表中
     val isCurrentRouteInList = items.any { it.route == currentRoute }
@@ -182,17 +193,19 @@ fun CustomBottomNavigation(
 
     ) {   //遍历 items 列表，为每个导航项创建一个 NavigationBarItem（底部导航按钮）
         items.forEach { item ->
-            val isSelected = currentRoute == item.route
+            var isSelected = currentRoute == item.route
             //isSelected:是否选中的bool  ：当前路由==导航路由
 
+
+
             val size by animateDpAsState(
-                targetValue = if (isSelected) 33.dp else 30.dp,
+                targetValue = if (isSelected) 33.dp else 32.dp,
                 animationSpec = keyframes {
                     durationMillis = 600
-                    35.dp at 300
-                    30.dp at 600
-                }
-            )
+                    30.dp at 350
+                    33.dp at 600
+        }
+ )
 
             // 用 Box 自定义导航项
             Box(
@@ -200,13 +213,17 @@ fun CustomBottomNavigation(
                     .weight(0.1f) // 平均分配宽度
                     .padding(3.dp)
                     .clickable {
+
+
                         // 导航逻辑（与之前保持一致）
-                        navController.navigate(item.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                        if (currentRoute != item.route) {
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
                         }
                     },
                 //.padding(vertical = 10.dp),

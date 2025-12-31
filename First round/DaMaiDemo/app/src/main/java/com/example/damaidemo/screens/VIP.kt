@@ -5,6 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
+
+/**
+ * 浑水摸鱼页面页面
+ */
 @Composable
 
 fun VIP (navController: NavController){

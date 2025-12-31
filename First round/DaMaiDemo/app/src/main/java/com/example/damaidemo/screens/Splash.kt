@@ -5,10 +5,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.onFocusedBoundsChanged
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -23,25 +27,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import com.example.damaidemo.R
+import com.example.wechatdemo4.navigation.NavRoutes
 
 /**
  * 带倒计时的开屏广告页面
- * @param navController 导航控制器，用于广告结束后跳转首页
- * @param adImageUrl 广告图片地址（支持本地资源/网络图片）
- * @param countdownSeconds 倒计时总时长（默认5秒）
  */
+
 @Composable
 fun SplashAdScreen(
-    navController: NavHostController,
+    navController: NavHostController,  //导航控制器，用于广告结束后跳转首页
     adImageUrl: String = "https://example.com/your_ad_image.jpg", // 替换为你的广告图地址
-    countdownSeconds: Int = 5
+    countdownSeconds: Int = 5 //countdownSeconds 倒计时总时长（默认5秒）
 ) {
     // 倒计时剩余秒数（使用mutableIntStateOf优化性能）
     var remainingSeconds by remember { mutableIntStateOf(countdownSeconds) }
@@ -53,6 +58,7 @@ fun SplashAdScreen(
         label = "countdown progress"
     )
 
+    val totalHeight = LocalConfiguration.current.screenHeightDp
     // 倒计时逻辑
     LaunchedEffect(key1 = remainingSeconds, key2 = adFinished) {
         if (remainingSeconds > 0 && !adFinished) {
@@ -68,12 +74,23 @@ fun SplashAdScreen(
     // 广告主布局
     Box(modifier = Modifier.fillMaxSize()) {
         // 1. 广告背景图
-        Image(
-            painter = painterResource(R.drawable.gao_yang),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop // 填充屏幕并裁剪
-        )
+        Column {
+            Image(
+                painter = painterResource(R.drawable.gao_yang),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(totalHeight.dp - 160.dp),
+                contentScale = ContentScale.Crop, // 填充屏幕并裁剪
+            )
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .background(Color.White)
+            ){
+
+            }
+        }
 
         // 2. 右上角跳过按钮（带倒计时）
         Box(
@@ -98,16 +115,13 @@ fun SplashAdScreen(
                 modifier = Modifier.size(40.dp),
                 color = Color.White,
                 trackColor = Color.Transparent,
-                strokeWidth = 2.dp
+                strokeWidth = 1.dp
             )
-            // 倒计时文字
-            Text(
-                text = "跳过\n$remainingSeconds",
+            Text(text="跳过",
                 color = Color.White,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.wrapContentSize()
-            )
+                modifier = Modifier.align(Alignment.Center,
+                    )
+                )
         }
     }
 }
@@ -118,7 +132,7 @@ fun SplashAdScreen(
 private fun navigateToHome(navController: NavHostController) {
     // 替换为你的首页路由，popUpTo清除回退栈，避免返回广告页
     navController.navigate("home") {
-        popUpTo("splash_ad") { inclusive = true } //栈回退，防止回到广告
+        popUpTo(NavRoutes.SPLASH) { inclusive = true } //栈回退，防止回到广告
     }
 }
 

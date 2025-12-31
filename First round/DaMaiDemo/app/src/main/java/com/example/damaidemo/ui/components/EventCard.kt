@@ -63,16 +63,15 @@ import com.example.damaidemo.data.data_source.mustToSeeShow
 import com.example.damaidemo.data.model.MustToSeePicture
 import com.example.damaidemo.data.model.SameCityPicture
 import com.example.damaidemo.data.model.TopCards
-import com.example.damaidemo.screens.allHorizonPadding
+import com.example.damaidemo.ui.theme.CardLR1Height
+import com.example.damaidemo.ui.theme.CardLR1Weight
+import com.example.damaidemo.ui.theme.ClipSize
+import com.example.damaidemo.ui.theme.allHorizonPadding
 import kotlinx.coroutines.delay
 import kotlin.collections.forEach
 
 
-var allHorizonPadding =8.dp
-var ClipSize = 10 //卡片切割角
 
-var CardLR1Weight = 196
-var CardLR1Height = 100
 //此文件用于存放各个组件🤔
 
 //顶部卡片群中的各个小玩意

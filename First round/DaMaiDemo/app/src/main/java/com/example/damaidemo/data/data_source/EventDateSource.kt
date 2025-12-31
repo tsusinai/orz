@@ -1,6 +1,9 @@
 package com.example.damaidemo.data.data_source
 
 import android.content.Context
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -9,11 +12,18 @@ import com.example.damaidemo.data.model.BannerItem
 import com.example.damaidemo.data.model.BottomShow
 import com.example.damaidemo.data.model.MiddleGroup
 import com.example.damaidemo.data.model.MustToSeePicture
+import com.example.damaidemo.data.model.ReSouExample
+import com.example.damaidemo.data.model.ReSouListExample
 import com.example.damaidemo.data.model.SameCityPicture
 import com.example.damaidemo.data.model.TopCards
 import com.example.damaidemo.data.rebository.SearchHistoryDao
 import com.example.damaidemo.data.model.SearchHistory
+import com.example.damaidemo.data.model.StrollVipInfoExample
 import com.example.damaidemo.data.model.TopToolsExample
+import com.example.damaidemo.data.model.YanChuRow
+import com.example.damaidemo.data.model.orderTypesExample
+import com.example.damaidemo.data.model.ordertypes
+import com.example.damaidemo.screens.YanChuRowTypes
 import com.example.wechatdemo4.navigation.NavRoutes
 
 
@@ -173,3 +183,132 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 }
+
+//Searchbar瀑布数据
+val QuanGuoReSouList=listOf<ReSouListExample>(
+    ReSouListExample(1,"梓俞"),
+    ReSouListExample(2,"王力宏"),
+    ReSouListExample(3,"汪苏泷"),
+    ReSouListExample(4,"马嘉祺"),
+    ReSouListExample(5,"邓紫棋"),
+    ReSouListExample(6,"张杰"),
+    ReSouListExample(7,"薛之谦"),
+    ReSouListExample(8,"张韶涵"),
+    ReSouListExample(9,"王源"),
+    ReSouListExample(10,"蔡徐坤")
+)
+
+val TongChengWanREList=listOf<ReSouListExample>(
+    ReSouListExample(1,"十个勤天 一起开麦吧"),
+    ReSouListExample(2,"周传健 福州"),
+    ReSouListExample(3,"张信哲 张韶涵"),
+    ReSouListExample(4,"夏日入侵企画 福州小剧场"),
+    ReSouListExample(5,"《疯狂动物城2》"),
+    ReSouListExample(6,"二狗个人互动演出"),
+    ReSouListExample(7,"一生必看现象级演出"),
+    ReSouListExample(8,"ACG 直到世界尽头"),
+    ReSouListExample(9,"秦朝觉醒XR大型沉浸式"),
+    ReSouListExample(10,"福州永泰欧乐堡")
+)
+
+val DianYinReSouList=listOf<ReSouListExample>(
+    ReSouListExample(1,"梓俞"),
+    ReSouListExample(2,"王力宏"),
+    ReSouListExample(3,"汪苏泷"),
+    ReSouListExample(4,"马嘉祺"),
+    ReSouListExample(5,"邓紫棋"),
+    ReSouListExample(6,"张杰"),
+    ReSouListExample(7,"薛之谦"),
+    ReSouListExample(8,"张韶涵"),
+    ReSouListExample(9,"王源"),
+    ReSouListExample(10,"蔡徐坤")
+)
+
+
+val ReSou = listOf<ReSouExample>(
+    ReSouExample(
+        QuanGuoReSouList,
+        "全国热搜榜",
+        Brush.linearGradient(
+            colors = listOf(Color(0xFFFFEDEC),Color(0xFFFFFFFF)),
+            start = Offset(x=0.5f,y=0f),
+            end = Offset(x= 0f,y=Float.POSITIVE_INFINITY)
+        ),
+        Brush.linearGradient(
+            colors = listOf(Color(0xFFFE6382),Color(0xFFFF9140)),
+            start = Offset(x=0f,y=0f),
+            end = Offset(x= Float.POSITIVE_INFINITY,y=Float.POSITIVE_INFINITY)
+        )
+    ),
+    ReSouExample(
+        TongChengWanREList,
+        "同城玩乐榜",
+        Brush.linearGradient(
+            colors = listOf(Color(0xFFEEEBFC), Color(0xFFFFFFFF)),
+            start = Offset(x = 0.5f, y = 0f),
+            end = Offset(x = 0f, y = Float.POSITIVE_INFINITY)
+        ),
+        Brush.linearGradient(
+            colors = listOf(Color(0xFF877EEA), Color(0xFFBD9CE9)),
+            start = Offset(x = 0f, y = 0f),
+            end = Offset(x = Float.POSITIVE_INFINITY, y = Float.POSITIVE_INFINITY)
+        )
+    ),
+    ReSouExample(
+        DianYinReSouList,
+        "电影热搜榜",
+        Brush.linearGradient(
+            colors = listOf(Color(0xFFFEEBF5),Color(0xFFFFFFFF)),
+            start = Offset(x=0.5f,y=0f),
+            end = Offset(x= 0f,y=Float.POSITIVE_INFINITY)
+        ),
+        Brush.linearGradient(
+            colors = listOf(Color(0xFFF1669E),Color(0xFFF88AC8)),
+            start = Offset(x=0f,y=0f),
+            end = Offset(x= Float.POSITIVE_INFINITY,y=Float.POSITIVE_INFINITY)
+        )
+    ),
+)
+
+
+
+//我的订单数据
+val orderTypes=listOf(
+    orderTypesExample("演出/门票", ordertypes.YanChu),
+    orderTypesExample("团购卷", ordertypes.TuanGou),
+    orderTypesExample("电影", ordertypes.DianYin),
+    orderTypesExample("小食", ordertypes.XiaoShi),
+    orderTypesExample("商城", ordertypes.ShangCheng),
+    orderTypesExample("剧本杀", ordertypes.JuBenSha)
+
+)
+
+val YanChuRows=listOf(
+    YanChuRow("搜索", YanChuRowTypes.SouSuo),
+    YanChuRow("待付款", YanChuRowTypes.FuKuan),
+    YanChuRow("待收货",YanChuRowTypes.SouHuo),
+    YanChuRow("待评价", YanChuRowTypes.PinJia),
+)
+
+//
+
+val StrollVipInfos = listOf<StrollVipInfoExample>(
+    StrollVipInfoExample("黑钻专享-开往2026FlyTO2026跨年演唱会"),
+    StrollVipInfoExample("黑钻专享-开往2026FlyTO2026跨年演唱会"),
+    StrollVipInfoExample("黑钻专享-开往2026FlyTO2026跨年演唱会"),
+    StrollVipInfoExample("黑钻专享-开往2026FlyTO2026跨年演唱会"),
+)
+
+
+
+val LazyTopTools = listOf<TopToolsExample>(
+    TopToolsExample(R.drawable.person_middle_1,"我的订单",NavRoutes.My_ORDER),
+    TopToolsExample(R.drawable.person_middle_2,"优惠券",NavRoutes.My_ORDER),
+    TopToolsExample(R.drawable.person_middle_3,"观演人",NavRoutes.My_ORDER),
+    TopToolsExample(R.drawable.person_middle_4,"收货地址",NavRoutes.My_ORDER),
+    TopToolsExample(R.drawable.person_middle_5,"借钱",NavRoutes.My_ORDER),
+    TopToolsExample(R.drawable.person_middle_6,"电子钱包",NavRoutes.My_ORDER),
+    TopToolsExample(R.drawable.person_middle_7,"电影云包场",NavRoutes.My_ORDER),
+    TopToolsExample(R.drawable.person_middle_8,"有奖调研",NavRoutes.My_ORDER),
+)
+

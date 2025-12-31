@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -72,22 +73,24 @@ import com.example.damaidemo.data.model.MiddleGroup
 import com.example.damaidemo.ui.components.middleLazyRow
 import com.example.damaidemo.ui.components.middleLazyRow1
 import com.example.damaidemo.ui.components.typesOnMainScreenOnTop
+import com.example.damaidemo.ui.theme.CardLR1Height
+import com.example.damaidemo.ui.theme.CardLR1Weight
+import com.example.damaidemo.ui.theme.ClipSize
+import com.example.damaidemo.ui.theme.allHorizonPadding
+import com.example.wechatdemo4.navigation.NavRoutes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-var allHorizonPadding =8.dp
-var ClipSize = 6 //卡片切割角
-
-var CardLR1Weight = 190
-var CardLR1Height = 100
 
 
-@Preview
+
+
 @Composable
 fun AppBar(
     modifier: Modifier = Modifier,
-//    onClick:(Unit) -> Unit
+    navController: NavController
+
 ){
     val linearGradient = Brush.linearGradient(
         colors = listOf(Color(0xFFF7DDE6), Color(0xFFF1F5F4)),
@@ -110,7 +113,7 @@ fun AppBar(
     {
         Row(
             modifier = Modifier
-                .offset(0.dp, -3.dp),
+                .offset(0.dp, (-3).dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp),
         ) {
@@ -151,6 +154,9 @@ fun AppBar(
 
         Box(modifier = Modifier
             .padding(top=4.dp)
+            .clickable{
+                navController.navigate(NavRoutes.SEARCH_SCREEN)
+            }
         )
          {
              Canvas(
@@ -274,22 +280,7 @@ fun AppBar(
         BadgedBox(
             modifier = Modifier
             ,
-            badge = {
-//                Box(
-//                    modifier = Modifier
-//                        .offset(2.dp, (-9).dp)
-//                        .size(10.dp)
-//                        .background(
-//                            color = Color(0xFFF44336),
-//                            shape = RoundedCornerShape(50)
-//                        )
-//                ){
-//                    Text("1",
-//                        modifier = Modifier
-//                            .align(Alignment.Center)
-//                        )
-//                }
-            }
+            badge = {}
         ) {
             Box() {
                 Image(
@@ -309,7 +300,7 @@ fun Home(
     navController: NavController
 ) {
     Box(modifier=Modifier.background(Color(0xFFF1F5F4))) {
-        AppBar()
+        AppBar(modifier=Modifier,navController)
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -318,12 +309,12 @@ fun Home(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item { typesOnMainScreenOnTop(modifier = Modifier) }
-            item { cardLR1_MainGroupsOnMainScreen(modifier = Modifier) }
-            item { middleGroups(MiddleGroups) }
-            item { carouselBanner(modifier = Modifier) }
+            item { CardLR1_MainGroupsOnMainScreen(modifier = Modifier) }
+            item { MiddleGroups(MiddleGroups) }
+            item { CarouselBanner(modifier = Modifier) }
             item { middleLazyRow(modifier = Modifier) }
             item { middleLazyRow1(modifier = Modifier) }
-            item { bottomColumn(modifier = Modifier) }
+            item { BottomColumn(modifier = Modifier) }
         }
     }
 }
@@ -331,7 +322,7 @@ fun Home(
 
 @Preview
 @Composable
-fun cardLR1_MainGroupsOnMainScreen(modifier: Modifier = Modifier){
+fun CardLR1_MainGroupsOnMainScreen(modifier: Modifier = Modifier){
 
     val linearGradient1 = Brush.linearGradient(
         colors = listOf(Color(0xFFFFFFFF), Color(0xFFFAF0F5)), // 紫色 → 青色
@@ -555,7 +546,7 @@ fun cardLR1_MainGroupsOnMainScreen(modifier: Modifier = Modifier){
 @Preview
 @Composable
 fun MiddleGroups(){
-    middleGroups(MiddleGroups)
+    MiddleGroups(MiddleGroups)
 }
 
 private enum class Enter{ //创建枚举类，记录box两个状态
@@ -564,13 +555,13 @@ private enum class Enter{ //创建枚举类，记录box两个状态
 }
 @Composable
 //@Preview
-fun middleGroups(
+fun MiddleGroups(
     items: List<MiddleGroup>,
 ){
-    var EnterState by remember { mutableStateOf(Enter.Small) } //创建box状态变量
+    var enterState by remember { mutableStateOf(Enter.Small) } //创建box状态变量
 
     val transition = updateTransition(
-        targetState = EnterState
+        targetState = enterState
     )
 
     val size by transition.animateDp {state -> //尺寸
@@ -583,15 +574,15 @@ fun middleGroups(
     LaunchedEffect(Unit) {
         while (true) {
             delay(1000)
-            EnterState = when (EnterState) {
+            enterState = when (enterState) {
                 Enter.Small -> Enter.Large
                 Enter.Large -> Enter.Small
             }
         }
     }
 
-    var CardMWeight = 124
-    var CardMHeight = 55
+    val cardMWeight = 124
+    val cardMHeight = 55
 
     Row(
         modifier = Modifier
@@ -605,8 +596,8 @@ fun middleGroups(
         items.forEachIndexed { index, item ->
             Card(
                 modifier = Modifier
-                    .height(CardMHeight.dp)
-                    .width(CardMWeight.dp)
+                    .height(cardMHeight.dp)
+                    .width(cardMWeight.dp)
                     .clip(shape = RoundedCornerShape(ClipSize.dp))
                     .then(
                         if (index == 2) {
@@ -637,7 +628,7 @@ fun middleGroups(
                         text = item.text1,
                         style = TextStyle(
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = Bold,
                             fontFamily = FontFamily.SansSerif,
                         )
                     )
@@ -659,7 +650,7 @@ fun middleGroups(
                         .then(
                             if (index == 2) {
                                 Modifier.size(size)
-                                    .offset(-3.dp,0.dp)
+                                    .offset((-3).dp,0.dp)
                             } else {
                                 Modifier.size(26.dp)
                                     .offset(0.dp,6.dp)
@@ -685,10 +676,10 @@ fun middleGroups(
 
 //还需要设置监听器：❗监听所在index
 @Composable
-fun carouselBanner(modifier: Modifier = Modifier) {
+fun CarouselBanner(modifier: Modifier = Modifier) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
-    var currentIndex by remember { mutableStateOf(0) } // 当前轮播索引
+    var currentIndex by remember { mutableIntStateOf(0) } // 当前轮播索引
     val scope = rememberCoroutineScope()
 
     val listState = rememberLazyListState(
@@ -786,7 +777,7 @@ private enum class BottomColumns{ //创建枚举类，记录box两个状态
 
 @Composable
 @Preview
-fun bottomColumn(modifier: Modifier = Modifier) {
+fun BottomColumn(modifier: Modifier = Modifier) {
 
     var type by remember{mutableStateOf(BottomColumns.Column1)}
 
@@ -801,7 +792,7 @@ fun bottomColumn(modifier: Modifier = Modifier) {
             text = "天天低价",
             style = TextStyle(
                 fontSize = 18.sp,
-                fontWeight = if (type == BottomColumns.Column1) FontWeight.Bold else FontWeight.Normal
+                fontWeight = if (type == BottomColumns.Column1) Bold else FontWeight.Normal
             ),
             modifier = Modifier
                 .clickable{type= BottomColumns.Column1},
@@ -811,7 +802,7 @@ fun bottomColumn(modifier: Modifier = Modifier) {
             text = "摸娱攻略",
             style = TextStyle(
                 fontSize = 18.sp,
-                fontWeight = if (type == BottomColumns.Column2) FontWeight.Bold else FontWeight.Normal
+                fontWeight = if (type == BottomColumns.Column2) Bold else FontWeight.Normal
             ),
             modifier = Modifier
                 .clickable{type= BottomColumns.Column2},
@@ -871,7 +862,7 @@ fun BottomShowLR(
                             contentScale = ContentScale.FillBounds // 强制填充
                     )
                         Box(modifier = Modifier
-                            .offset(5.dp,-7.dp)
+                            .offset(5.dp, (-7).dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(Color(0xFF000000))
                             .border(0.5f.dp,Color.White,RoundedCornerShape(10.dp))
@@ -898,7 +889,7 @@ fun BottomShowLR(
 
                         style = TextStyle(
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = Bold,
                         ),
 
                         modifier = Modifier
@@ -922,11 +913,11 @@ fun BottomShowLR(
 
                     ) {
                     Text(
-                        text = "￥sdfsdf",
+                        text = "￥120",
                         color = Color(255, 0, 0),
                         style = TextStyle(
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = Bold,
                         )
                     )
                     Text(
@@ -982,7 +973,7 @@ fun BottomShowLR1(
                             contentScale = ContentScale.FillBounds // 强制填充
                         )
                         Box(modifier = Modifier
-                            .offset(5.dp,-7.dp)
+                            .offset(5.dp, (-7).dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(Color(0xFF000000))
                             .border(0.5f.dp,Color.White,RoundedCornerShape(10.dp))
@@ -1009,7 +1000,7 @@ fun BottomShowLR1(
 
                         style = TextStyle(
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = Bold,
                         ),
 
                         modifier = Modifier
@@ -1033,11 +1024,11 @@ fun BottomShowLR1(
 
                         ) {
                         Text(
-                            text = "￥sdfsdf",
+                            text = "￥310",
                             color = Color(255, 0, 0),
                             style = TextStyle(
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = Bold,
                             )
                         )
                         Text(

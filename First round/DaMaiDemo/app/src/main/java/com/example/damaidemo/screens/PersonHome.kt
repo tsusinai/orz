@@ -45,7 +45,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -57,11 +56,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.damaidemo.R
+import com.example.damaidemo.data.data_source.LazyTopTools
+import com.example.damaidemo.data.data_source.StrollVipInfos
 import com.example.damaidemo.data.data_source.TopTools
 import com.example.damaidemo.data.data_source.personBannerList
 import com.example.damaidemo.data.model.TopToolsExample
-import com.example.wechatdemo4.navigation.NavRoutes
-import com.example.wechatdemo4.navigation.navItems
+import com.example.damaidemo.ui.theme.ClipSize
+import com.example.damaidemo.ui.theme.allHorizonPadding
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
@@ -93,7 +94,7 @@ fun PersonAppBar(totalScrollOffsetPx:Int,modifier: Modifier) {
             ) {
                 Image(
                     modifier = Modifier
-                        .padding(horizontal = paddingHorizion)
+                        .padding(horizontal = paddingHorizional)
                         .clip(CircleShape)
                         .size(34.dp)
                         .border(1.dp, Color(0xFFFFFFFF), CircleShape),
@@ -212,7 +213,7 @@ fun PersonHomeT(modifier: Modifier=Modifier,navController: NavController){
         item{TopTool(modifier,navController)}
         item{MiddleTools()}
         item{LazyTopTool()}
-        item{carouselBannerAtPerson(modifier = modifier)}
+        item{CarouselBannerAtPerson(modifier = modifier)}
         item{Bottom()}
         item{Bottom()}
         item{Bottom()}
@@ -220,9 +221,8 @@ fun PersonHomeT(modifier: Modifier=Modifier,navController: NavController){
     }
 }
 
-val paddingHorizion = 10.dp
+val paddingHorizional = 10.dp
 val isVIP = false
-
 
 var subscription:Int=0
 var fans:Int=0
@@ -245,7 +245,7 @@ fun Tops(modifier:Modifier=Modifier){
         ) {
             Image(
                 modifier = modifier
-                    .padding(horizontal = paddingHorizion)
+                    .padding(horizontal = paddingHorizional)
                     .clip(CircleShape)
                     .size(66.dp)
                     .border(1.dp, Color(0xFFFFFFFF), CircleShape),
@@ -328,7 +328,7 @@ fun DaMaiVip(modifier:Modifier= Modifier){
         Column(){
             Row(modifier=modifier
                 .fillMaxWidth()
-                .padding(start = paddingHorizion, end = paddingHorizion,top = 6.dp),
+                .padding(start = paddingHorizional, end = paddingHorizional,top = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -375,16 +375,6 @@ fun DaMaiVip(modifier:Modifier= Modifier){
     }
 }
 
-data class StrollVipInfoExample(
-    val test:String,
-)
-
-val StrollVipInfos = listOf<StrollVipInfoExample>(
-    StrollVipInfoExample("黑钻专享-开往2026FlyTO2026跨年演唱会"),
-    StrollVipInfoExample("黑钻专享-开往2026FlyTO2026跨年演唱会"),
-    StrollVipInfoExample("黑钻专享-开往2026FlyTO2026跨年演唱会"),
-    StrollVipInfoExample("黑钻专享-开往2026FlyTO2026跨年演唱会"),
-)
 
 @Composable
 fun StrollVIP(modifier:Modifier=Modifier){
@@ -607,7 +597,7 @@ fun MiddleTools(modifier:Modifier=Modifier){
 
 
 @Composable
-fun carouselBannerAtPerson(modifier: Modifier = Modifier) {
+fun CarouselBannerAtPerson(modifier: Modifier = Modifier) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     var currentIndex by remember { mutableStateOf(0) } // 当前轮播索引
@@ -742,25 +732,14 @@ fun Bottom(modifier:Modifier=Modifier){
 }
 
 
-val LazyTopTools = listOf<TopToolsExample>(
-    TopToolsExample(R.drawable.person_middle_1,"我的订单",NavRoutes.My_ORDER),
-    TopToolsExample(R.drawable.person_middle_2,"优惠券",NavRoutes.My_ORDER),
-    TopToolsExample(R.drawable.person_middle_3,"观演人",NavRoutes.My_ORDER),
-    TopToolsExample(R.drawable.person_middle_4,"收货地址",NavRoutes.My_ORDER),
-    TopToolsExample(R.drawable.person_middle_5,"借钱",NavRoutes.My_ORDER),
-    TopToolsExample(R.drawable.person_middle_6,"电子钱包",NavRoutes.My_ORDER),
-    TopToolsExample(R.drawable.person_middle_7,"电影云包场",NavRoutes.My_ORDER),
-    TopToolsExample(R.drawable.person_middle_8,"有奖调研",NavRoutes.My_ORDER),
-    )
-
 @Composable
 @Preview
 fun LazyTopTool(modifier:Modifier=Modifier){
-    LazyRowTool(modifier = Modifier,LazyTopTools,120)
+    LazyRowTool(modifier = Modifier,LazyTopTools)
 }
 
 @Composable
-fun LazyRowTool(modifier:Modifier=Modifier,items: List<TopToolsExample>,cardHeight:Int){
+fun LazyRowTool(modifier:Modifier=Modifier,items: List<TopToolsExample>){
     val cardHeight=90
     // 获取屏幕宽度（dp）
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp

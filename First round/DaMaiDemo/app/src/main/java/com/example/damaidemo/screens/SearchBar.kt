@@ -1,16 +1,5 @@
 package com.example.damaidemo.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,14 +26,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -56,14 +39,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextLayoutResult
@@ -74,118 +55,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.damaidemo.data.data_source.ReSou
+import com.example.damaidemo.data.model.ReSouExample
+import com.example.damaidemo.data.model.ReSouListExample
 import com.example.damaidemo.data.rebository.SearchHistoryModel
-import kotlin.io.path.Path
-import kotlin.io.path.moveTo
+import com.example.damaidemo.ui.theme.allHorizonPadding
 
 val roundClipInSearchScreen = 12.dp
 
-data class ReSouExample(
-    val ReSou: List<ReSouListExample>,
-    val nameOfList: String,
-    val linerBrush: Brush,
-    val textBrush: Brush,
-)
 
-data class ReSouListExample(
-    val num:Int,
-    val name:String,
-)
-
-val QuanGuoReSouList=listOf<ReSouListExample>(
-    ReSouListExample(1,"梓俞"),
-    ReSouListExample(2,"王力宏"),
-    ReSouListExample(3,"汪苏泷"),
-    ReSouListExample(4,"马嘉祺"),
-    ReSouListExample(5,"邓紫棋"),
-    ReSouListExample(6,"张杰"),
-    ReSouListExample(7,"薛之谦"),
-    ReSouListExample(8,"张韶涵"),
-    ReSouListExample(9,"王源"),
-    ReSouListExample(10,"蔡徐坤")
-)
-
-val TongChengWanREList=listOf<ReSouListExample>(
-    ReSouListExample(1,"十个勤天 一起开麦吧"),
-    ReSouListExample(2,"周传健 福州"),
-    ReSouListExample(3,"张信哲 张韶涵"),
-    ReSouListExample(4,"夏日入侵企画 福州小剧场"),
-    ReSouListExample(5,"《疯狂动物城2》"),
-    ReSouListExample(6,"二狗个人互动演出"),
-    ReSouListExample(7,"一生必看现象级演出"),
-    ReSouListExample(8,"ACG 直到世界尽头"),
-    ReSouListExample(9,"秦朝觉醒XR大型沉浸式"),
-    ReSouListExample(10,"福州永泰欧乐堡")
-)
-
-val DianYinReSouList=listOf<ReSouListExample>(
-    ReSouListExample(1,"梓俞"),
-    ReSouListExample(2,"王力宏"),
-    ReSouListExample(3,"汪苏泷"),
-    ReSouListExample(4,"马嘉祺"),
-    ReSouListExample(5,"邓紫棋"),
-    ReSouListExample(6,"张杰"),
-    ReSouListExample(7,"薛之谦"),
-    ReSouListExample(8,"张韶涵"),
-    ReSouListExample(9,"王源"),
-    ReSouListExample(10,"蔡徐坤")
-)
-
-val ReSou = listOf<ReSouExample>(
-    ReSouExample(
-        QuanGuoReSouList,
-        "全国热搜榜",
-        Brush.linearGradient(
-        colors = listOf(Color(0xFFFFEDEC),Color(0xFFFFFFFF)),
-        start = Offset(x=0.5f,y=0f),
-        end = Offset(x= 0f,y=Float.POSITIVE_INFINITY)
-),
-        Brush.linearGradient(
-        colors = listOf(Color(0xFFFE6382),Color(0xFFFF9140)),
-        start = Offset(x=0f,y=0f),
-        end = Offset(x= Float.POSITIVE_INFINITY,y=Float.POSITIVE_INFINITY)
-)
-        ),
-    ReSouExample(
-        TongChengWanREList,
-        "同城玩乐榜",
-        Brush.linearGradient(
-            colors = listOf(Color(0xFFEEEBFC),Color(0xFFFFFFFF)),
-            start = Offset(x=0.5f,y=0f),
-            end = Offset(x= 0f,y=Float.POSITIVE_INFINITY)
-        ),
-        Brush.linearGradient(
-            colors = listOf(Color(0xFF877EEA),Color(0xFFBD9CE9)),
-            start = Offset(x=0f,y=0f),
-            end = Offset(x= Float.POSITIVE_INFINITY,y=Float.POSITIVE_INFINITY)
-        )
-    ),
-    ReSouExample(
-        DianYinReSouList,
-        "电影热搜榜",
-        Brush.linearGradient(
-            colors = listOf(Color(0xFFFEEBF5),Color(0xFFFFFFFF)),
-            start = Offset(x=0.5f,y=0f),
-            end = Offset(x= 0f,y=Float.POSITIVE_INFINITY)
-        ),
-        Brush.linearGradient(
-            colors = listOf(Color(0xFFF1669E),Color(0xFFF88AC8)),
-            start = Offset(x=0f,y=0f),
-            end = Offset(x= Float.POSITIVE_INFINITY,y=Float.POSITIVE_INFINITY)
-        )
-    ),
-)
-
-
-
-
-@Preview
 @Composable
-fun SearchScreen(modifier:Modifier=Modifier){
+fun SearchScreen(modifier:Modifier=Modifier, navController: NavController){
     var searchText by remember { mutableStateOf("") }
 
     Box(modifier=modifier
@@ -208,6 +92,7 @@ fun SearchScreen(modifier:Modifier=Modifier){
                     // 历史标签点击回调，更新搜索文本
                     searchText = text
                 },
+                navController=navController
             )
             MiddleLazy(modifier =modifier,ReSou)
         }
@@ -222,7 +107,9 @@ fun SearchBar(
     onSearch: (String) -> Unit,
     onClear: () -> Unit,
     onHistoryItemClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+
+            navController: NavController
 ) {
 
     // 获取密度对象，用于dp与px的正确转换
@@ -235,9 +122,9 @@ fun SearchBar(
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
-    var historyItem = remember {
-        mutableStateListOf<String>()
-    }
+//    var historyItem = remember {
+//        mutableStateListOf<String>()
+//    }
 
     // 直接获取无参ViewModel（符合官方规范，无崩溃）
     val historyViewModel: SearchHistoryModel = viewModel()
@@ -362,17 +249,15 @@ Column(modifier=modifier
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // 占位文本
                 if (searchText.isEmpty()) {
                     Text(
-                        text = "搜索影视剧",
+                        text = "2026年跨年演唱会",
                         color = Color.Gray,
                         fontSize = 16.sp
                     )
                 }
             }
 
-            // 清除按钮
                 Text(
                     text = "取消",
                     style = TextStyle(
@@ -386,6 +271,7 @@ Column(modifier=modifier
                         ) {
                             onClear()
                             //跳转逻辑
+                            navController.popBackStack()
                         }
                 )
         }
@@ -707,18 +593,4 @@ fun MiddleLazyQuanGuo(
             }
         }
     }
-}
-
-
-
-@Preview
-@Composable
-fun MiddleLazyTongCheng(){
-
-}
-
-@Preview
-@Composable
-fun MiddleLazyDianYin(){
-
 }

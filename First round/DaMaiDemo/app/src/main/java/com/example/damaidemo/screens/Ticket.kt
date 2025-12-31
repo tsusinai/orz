@@ -5,6 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
+
+/**
+ * 浑水摸鱼页面
+ */
+
 @Composable
 
 fun Ticket(navController: NavController){

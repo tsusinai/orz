@@ -1,8 +1,10 @@
 package com.example.damaidemo.data.model
 
+import androidx.compose.ui.graphics.Brush
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.damaidemo.screens.YanChuRowTypes
 import java.util.Date
 
 //此文件用于存放各组件的数据模型🤔
@@ -111,12 +113,7 @@ data class BottomShow(
     var isOpen: Boolean?=null,
 )
 
-//我的上部工具栏
-data class TopToolsExample(
-    val iconId: Int,
-    val test: String,
-    val navGo: String
-)
+
 
 //Room注解：创建 Entity（表实体）
 @Entity(tableName = "search_history", indices = [Index(value = ["history"], unique = true)]) // 表名：user（默认类名，可通过tableName指定）
@@ -125,4 +122,51 @@ data class SearchHistory(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 
     val history: String,//数据模型
+)
+
+
+//SearchBar瀑布模型
+data class ReSouExample(
+    val ReSou: List<ReSouListExample>,
+    val nameOfList: String,
+    val linerBrush: Brush,
+    val textBrush: Brush,
+)
+
+data class ReSouListExample(
+    val num:Int,
+    val name:String,
+)
+
+//我的订单模型
+enum class ordertypes {
+    YanChu,
+    TuanGou,
+    DianYin,
+    XiaoShi,
+    ShangCheng,
+    JuBenSha,
+}
+
+//我的上部工具栏
+data class TopToolsExample(
+    val iconId: Int,
+    val test: String,
+    val navGo: String
+)
+
+data class orderTypesExample(
+    val orders:String,
+    val type: ordertypes,
+)
+
+
+data class YanChuRow(
+    val name:String,
+    val types: YanChuRowTypes
+)
+
+//
+data class StrollVipInfoExample(
+    val test:String,
 )
